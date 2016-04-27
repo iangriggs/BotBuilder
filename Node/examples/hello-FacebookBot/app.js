@@ -1,5 +1,9 @@
-// A quick hello world using the hacked together Facebook Bot Service
-// and Provider.
+// A quick hello world using the hacked together demonstrating the Facebook Bot
+// Service and Provider working together.
+//
+// I had to also run 'npm install' from the ../../../Node folder to get some
+// some dependencies installed including chrono-node, node-uuid, request
+// and sprintf-js
 
 var restify = require('restify');
 var builder = require('../../');
