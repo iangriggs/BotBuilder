@@ -34,8 +34,8 @@ var FacebookBot = (function(_super) {
         this.configure(options);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|'); // only handle 'message' event atm
         events.forEach(function(value) {
-            botService.eventEmitter.on(value, function(bot, data) {
-                _this.handleEvent(value, bot, data);
+            botService.eventEmitter.on(value, function(data) {
+                _this.handleEvent(value, data);
             });
         });
     }
@@ -57,7 +57,7 @@ var FacebookBot = (function(_super) {
         }
         this.dispatchMessage(null, this.toFacebookMessage(address), dialogId, dialogArgs);
     };
-    FacebookBot.prototype.handleEvent = function(event, bot, data) {
+    FacebookBot.prototype.handleEvent = function(event, data) {
         console.log('handleEvent', event, data);
         var _this = this;
         var onError = function(err) {
@@ -65,7 +65,7 @@ var FacebookBot = (function(_super) {
         };
         switch (event) {
             case 'message':
-                this.dispatchMessage(bot, data, this.options.defaultDialogId, this.options.defaultDialogArgs);
+                this.dispatchMessage(data, this.options.defaultDialogId, this.options.defaultDialogArgs);
                 break;
                 // case 'personalMessage':
                 //     this.dispatchMessage(bot, data, this.options.defaultDialogId, this.options.defaultDialogArgs);
@@ -97,7 +97,7 @@ var FacebookBot = (function(_super) {
                 //     break;
         }
     };
-    FacebookBot.prototype.dispatchMessage = function(bot, data, dialogId, dialogArgs) {
+    FacebookBot.prototype.dispatchMessage = function(data, dialogId, dialogArgs) {
         var _this = this;
         var onError = function(err) {
             _this.emit('error', err, data);

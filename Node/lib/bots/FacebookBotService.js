@@ -55,7 +55,7 @@ function FacebookBotService(page_token, validation_token) {
                 text = event.message.text;
                 id = event.message.mid;
                 console.log('message received:', text, sender);
-                eventEmitter.emit('message', 'BOTS RULE!', {
+                eventEmitter.emit('message', {
                     messageId: id,
                     text: text,
                     to: recipient,
