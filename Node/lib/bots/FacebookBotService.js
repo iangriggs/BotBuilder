@@ -3,6 +3,8 @@
 // so will probably revisit shortly and put the Typescript file in place and
 // generate this is the way that Microsoft intended. At the moment I'm more
 // interested in building a working bot with it.
+//
+// See ../../examples/hello-FacebookBot for an example of using it.
 
 var events = require('events');
 var request = require('request');
