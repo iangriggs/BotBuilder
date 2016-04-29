@@ -21,30 +21,29 @@ export interface IFacebookBotOptions {
 }
 
 export interface IFacebookBotMessage {
-  to: string,
-  from: string,
-  type: string,
-  content: string,
-  messageId: number,
-  text: string,
-  contentType: string,
-  eventTime: number
+  to: string;
+  from: string;
+  type: string;
+  content: string;
+  messageId: number;
+  text: string;
+  contentType: string;
+  eventTime: number;
 }
 
 export interface IFacebookBotService {
-  FacebookBotService: any,
-  eventEmitter: any,
-  send: any
+  send(sender: string, text: string, errorHandler: any): void;
+  on(event: string, listener: Function): void;
 }
 
 export class FacebookBot extends collection.DialogCollection {
     private options: IFacebookBotOptions = {
         maxSessionAge: 14400000,    // <-- default max session age of 4 hours
         defaultDialogId: '/',
-        minSendDelay: 1000,       
+        minSendDelay: 1000,
     };
-    
-    private botService: any;
+
+    private botService: IFacebookBotService;
 
     constructor(options?: IFacebookBotOptions) {
         super();
@@ -52,7 +51,7 @@ export class FacebookBot extends collection.DialogCollection {
         this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach((value) => {
-            this.botService.eventEmitter.on(value, (data: IFacebookBotMessage) => {
+            this.botService.on(value, (data: IFacebookBotMessage) => {
                 console.log('botService emitted message');
                 this.handleEvent(value, data);
             });

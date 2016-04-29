@@ -22,7 +22,7 @@ var FacebookBot = (function (_super) {
         this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
-            _this.botService.eventEmitter.on(value, function (data) {
+            _this.botService.on(value, function (data) {
                 console.log('botService emitted message');
                 _this.handleEvent(value, data);
             });

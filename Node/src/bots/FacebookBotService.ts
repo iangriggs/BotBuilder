@@ -10,24 +10,55 @@
 import events = require('events');
 import request = require('request');
 
-export class FacebookBotService {
-    
+interface IFacebookReceiveMessaging {
+    recipient: {
+        id: number;
+    },
+    sender: {
+        id: number;
+    },
+    message: {
+        text: string;
+        mid: string;
+        seq: number;
+    },
+    timestamp: number;
+}
+
+interface IFacebookReceiveEntry {
+    id: number;
+    time: number;
+    messaging: IFacebookReceiveMessaging[];
+}
+
+interface IFacebookReceive {
+    object: string;
+    entry: IFacebookReceiveEntry[];
+}
+
+interface IFacebookValidateParams {
+    hub: {
+        verify_token: string;
+        validation_token: string;
+        challenge: number;
+    }
+}
+
+export class FacebookBotService extends events.EventEmitter {
+
     private page_token: string;
     private validation_token: string;
-    private eventEmitter: any;
 
     constructor(page_token: string, validation_token: string) {
+        super();
         this.page_token = page_token;
         this.validation_token = validation_token;
-        this.eventEmitter = new events.EventEmitter();
     }
 
-    send(sender: string, text: string, errorHandler: any) {
+    send(sender: string, text: string, errorHandler: (err: Error) => void) {
         console.log(sender, text);
 
-        var messageData = {
-            text: text
-        }
+        var messageData = { text }
 
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -41,16 +72,16 @@ export class FacebookBotService {
                 },
                 message: messageData,
             }
-        }, function(error: any, response: any, body: any) {
+        }, function(error: Error, response: any, body: any) {
                 if (error) {
-                    console.log('Error sending message: ', error);
+                    console.error('Error sending message: ', error);
                 } else if (response.body.error) {
-                    console.log('Error: ', response.body.error);
+                    console.error('Error: ', response.body.error);
                 }
             });
     }
 
-    receive(message: any) {
+    receive(message: IFacebookReceive) {
         console.log('receive handler called', message);
         var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
@@ -61,7 +92,7 @@ export class FacebookBotService {
                 var text = event.message.text;
                 var id = event.message.mid;
                 console.log('message received:', text, sender);
-                this.eventEmitter.emit('message', {
+                this.emit('message', {
                     messageId: id,
                     text: text,
                     to: recipient,
@@ -71,13 +102,13 @@ export class FacebookBotService {
         }
     }
 
-    validate(params: any, cb: any) {
+    validate(params: IFacebookValidateParams, callback: (error: Error, challenge?: number) => void) {
         console.log('validate handler called', params);
         if (params.hub.verify_token === this.validation_token) {
             var challenge = Number(params.hub.challenge);
-            cb(null, challenge);
+            callback(null, challenge);
             return;
         }
-        cb('validation failed');
+        callback(new Error('validation failed'));
     }
 }

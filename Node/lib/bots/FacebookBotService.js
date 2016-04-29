@@ -1,17 +1,21 @@
 "use strict";
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var events = require('events');
 var request = require('request');
-var FacebookBotService = (function () {
+var FacebookBotService = (function (_super) {
+    __extends(FacebookBotService, _super);
     function FacebookBotService(page_token, validation_token) {
+        _super.call(this);
         this.page_token = page_token;
         this.validation_token = validation_token;
-        this.eventEmitter = new events.EventEmitter();
     }
     FacebookBotService.prototype.send = function (sender, text, errorHandler) {
         console.log(sender, text);
-        var messageData = {
-            text: text
-        };
+        var messageData = { text: text };
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
             qs: {
@@ -26,10 +30,10 @@ var FacebookBotService = (function () {
             }
         }, function (error, response, body) {
             if (error) {
-                console.log('Error sending message: ', error);
+                console.error('Error sending message: ', error);
             }
             else if (response.body.error) {
-                console.log('Error: ', response.body.error);
+                console.error('Error: ', response.body.error);
             }
         });
     };
@@ -44,7 +48,7 @@ var FacebookBotService = (function () {
                 var text = event.message.text;
                 var id = event.message.mid;
                 console.log('message received:', text, sender);
-                this.eventEmitter.emit('message', {
+                this.emit('message', {
                     messageId: id,
                     text: text,
                     to: recipient,
@@ -53,15 +57,15 @@ var FacebookBotService = (function () {
             }
         }
     };
-    FacebookBotService.prototype.validate = function (params, cb) {
+    FacebookBotService.prototype.validate = function (params, callback) {
         console.log('validate handler called', params);
         if (params.hub.verify_token === this.validation_token) {
             var challenge = Number(params.hub.challenge);
-            cb(null, challenge);
+            callback(null, challenge);
             return;
         }
-        cb('validation failed');
+        callback(new Error('validation failed'));
     };
     return FacebookBotService;
-}());
+}(events.EventEmitter));
 exports.FacebookBotService = FacebookBotService;
