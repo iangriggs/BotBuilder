@@ -1,3 +1,4 @@
+"use strict";
 var request = require('request');
 var BotConnectorStorage = (function () {
     function BotConnectorStorage(options) {
@@ -48,5 +49,5 @@ var BotConnectorStorage = (function () {
         request.post(options, callback);
     };
     return BotConnectorStorage;
-})();
+}());
 exports.BotConnectorStorage = BotConnectorStorage;

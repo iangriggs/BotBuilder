@@ -1,3 +1,4 @@
+"use strict";
 var session = require('./Session');
 var sprintf = require('sprintf-js');
 var Message = (function () {
@@ -60,5 +61,5 @@ var Message = (function () {
         return args && args.length > 0 ? sprintf.vsprintf(prompt, args) : prompt;
     };
     return Message;
-})();
+}());
 exports.Message = Message;

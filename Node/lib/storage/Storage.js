@@ -1,3 +1,4 @@
+"use strict";
 var MemoryStorage = (function () {
     function MemoryStorage() {
         this.store = {};
@@ -22,5 +23,5 @@ var MemoryStorage = (function () {
         }
     };
     return MemoryStorage;
-})();
+}());
 exports.MemoryStorage = MemoryStorage;

@@ -1,3 +1,4 @@
+"use strict";
 exports.Data = {
     SessionState: 'BotBuilder.Data.SessionState',
     SessionId: 'BotBuilder.Data.SessionId',

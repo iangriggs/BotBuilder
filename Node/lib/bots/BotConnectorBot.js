@@ -1,3 +1,4 @@
+"use strict";
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -148,6 +149,7 @@ var BotConnectorBot = (function (_super) {
                     };
                     data.perUserConversationData[consts.Data.SessionState] = ses.sessionState;
                     _this.saveData(userId, sessionId, data, reply, function (err) {
+                        var settings = ses.message.to.channelId == 'emulator' ? { endpoint: 'http://localhost:9000' } : _this.options;
                         if (res) {
                             _this.emit('reply', reply);
                             res.send(200, reply);
@@ -163,7 +165,7 @@ var BotConnectorBot = (function (_super) {
                             reply.participants = ses.message.participants;
                             reply.totalParticipants = ses.message.totalParticipants;
                             _this.emit('reply', reply);
-                            post(_this.options, '/bot/v1.0/messages', reply, function (err) {
+                            post(settings, '/bot/v1.0/messages', reply, function (err) {
                                 if (err) {
                                     _this.emit('error', err);
                                 }
@@ -173,7 +175,7 @@ var BotConnectorBot = (function (_super) {
                             reply.from = ses.message.from;
                             reply.to = ses.message.to;
                             _this.emit('send', reply);
-                            post(_this.options, '/bot/v1.0/messages', reply, function (err) {
+                            post(settings, '/bot/v1.0/messages', reply, function (err) {
                                 if (err) {
                                     _this.emit('error', err);
                                 }
@@ -300,7 +302,7 @@ var BotConnectorBot = (function (_super) {
         save(perUserConvoPath, 'botPerUserInConversationData', this.options.perUserInConversationStore, data.perUserConversationData);
     };
     return BotConnectorBot;
-})(collection.DialogCollection);
+}(collection.DialogCollection));
 exports.BotConnectorBot = BotConnectorBot;
 var BotConnectorSession = (function (_super) {
     __extends(BotConnectorSession, _super);
@@ -308,7 +310,7 @@ var BotConnectorSession = (function (_super) {
         _super.apply(this, arguments);
     }
     return BotConnectorSession;
-})(session.Session);
+}(session.Session));
 exports.BotConnectorSession = BotConnectorSession;
 function post(settings, path, body, callback) {
     var options = {

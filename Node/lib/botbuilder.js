@@ -1,3 +1,4 @@
+"use strict";
 var session = require('./Session');
 var message = require('./Message');
 var dialog = require('./dialogs/Dialog');
@@ -38,4 +39,3 @@ exports.SlackBot = slack.SlackBot;
 exports.SlackSession = slack.SlackSession;
 exports.TextBot = text.TextBot;
 exports.FacebookBot = facebook.FacebookBot;
-exports.FacebookSession = facebook.FacebookSession;

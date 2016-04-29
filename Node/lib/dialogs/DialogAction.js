@@ -1,3 +1,4 @@
+"use strict";
 var session = require('../Session');
 var consts = require('../consts');
 var utils = require('../utils');
@@ -139,5 +140,5 @@ var DialogAction = (function () {
         };
     };
     return DialogAction;
-})();
+}());
 exports.DialogAction = DialogAction;

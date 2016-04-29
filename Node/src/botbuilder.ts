@@ -49,6 +49,7 @@ import connector = require('./bots/BotConnectorBot');
 import skype = require('./bots/SkypeBot');
 import slack = require('./bots/SlackBot');
 import text = require('./bots/TextBot');
+import facebook = require('./bots/FacebookBot');
 
 declare var exports: any;
 
@@ -75,4 +76,5 @@ exports.SkypeSession = skype.SkypeSession;
 exports.SlackBot = slack.SlackBot;
 exports.SlackSession = slack.SlackSession;
 exports.TextBot = text.TextBot;
+exports.FacebookBot = facebook.FacebookBot;
 

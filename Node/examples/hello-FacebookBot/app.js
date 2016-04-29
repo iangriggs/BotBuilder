@@ -20,8 +20,7 @@ if (!validation_token) {
   return;
 }
 
-var botService = new FacebookBotService(page_token, validation_token);
-
+var botService = new FacebookBotService.FacebookBotService(page_token, validation_token);
 var bot = new builder.FacebookBot(botService);
 
 bot.add('/', function (session) {
