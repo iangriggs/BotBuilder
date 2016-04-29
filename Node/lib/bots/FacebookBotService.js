@@ -34,11 +34,11 @@ var FacebookBotService = (function () {
             }
         });
     };
-    FacebookBotService.prototype.receive = function (req, res) {
-        console.log('receive handler called', req.body);
-        var messaging_events = req.body.entry[0].messaging;
+    FacebookBotService.prototype.receive = function (message) {
+        console.log('receive handler called', message);
+        var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
-            var event = req.body.entry[0].messaging[i];
+            var event = message.entry[0].messaging[i];
             var sender = event.recipient.id;
             var recipient = event.sender.id;
             if (event.message && event.message.text) {
@@ -53,18 +53,15 @@ var FacebookBotService = (function () {
                 });
             }
         }
-        res.send(200);
     };
-    FacebookBotService.prototype.validate = function (req, res) {
-        console.log('validate handler called', req.params);
-        if (req.params.hub.verify_token === this.validation_token) {
-            var challenge = Number(req.params.hub.challenge);
-            res.send(200, challenge);
-            console.log('validation successful');
+    FacebookBotService.prototype.validate = function (params, cb) {
+        console.log('validate handler called', params);
+        if (params.hub.verify_token === this.validation_token) {
+            var challenge = Number(params.hub.challenge);
+            cb(null, challenge);
             return;
         }
-        console.error('Error, wrong validation token');
-        res.send('Error, wrong validation token');
+        cb('validation failed');
     };
     return FacebookBotService;
 }());

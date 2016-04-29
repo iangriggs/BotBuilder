@@ -7,7 +7,6 @@
 
 var restify = require('restify');
 var builder = require('../../');
-var FacebookBotService = require('../../lib/bots/FacebookBotService');
 
 var page_token = process.env.PAGE_TOKEN;
 if (!page_token) {
@@ -16,12 +15,12 @@ if (!page_token) {
 }
 var validation_token = process.env.VALIDATION_TOKEN;
 if (!validation_token) {
-  console.err('Provide vallidation token required as VALIDATION_TOKEN environment variable.');
+  console.err('Provide validation token required as VALIDATION_TOKEN environment variable.');
   return;
 }
 
-var botService = new FacebookBotService.FacebookBotService(page_token, validation_token);
-var bot = new builder.FacebookBot(botService);
+var options = { page_token, validation_token };
+var bot = new builder.FacebookBot(options);
 
 bot.add('/', function (session) {
    session.send('Hello World');
@@ -30,9 +29,29 @@ bot.add('/', function (session) {
 var server = restify.createServer();
 server.use(restify.bodyParser());
 server.use(restify.queryParser());
-server.get('/facebook/receive', botService.validate)
-server.post('/facebook/receive', botService.receive);
+server.get('/facebook/receive', validate)
+server.post('/facebook/receive', receive);
+
 var port = process.env.PORT || 3000;
-server.listen(process.env.PORT || 3000, function() {
+server.listen(port, function() {
     console.log(`Magic happening on port ${port}`);
 });
+
+function receive(req, res) {
+    console.log('receive handler called', req.body);
+    bot.botService.receive(req.body);
+    res.send(200);
+}
+
+function validate(req, res) {
+    console.log('validate handler called', req.params);
+    bot.botService.validate(req.params, function(err, challenge){
+      if (err) {
+          console.error(err);
+          res.send('Error, validation failed');
+          return;
+      }
+      console.log('validation successful');
+      res.send(200, challenge);
+    });
+};

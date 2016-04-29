@@ -7,12 +7,13 @@ var __extends = (this && this.__extends) || function (d, b) {
 var collection = require('../dialogs/DialogCollection');
 var session = require('../Session');
 var storage = require('../storage/Storage');
+var botService = require('./FacebookBotService');
 var FacebookBot = (function (_super) {
     __extends(FacebookBot, _super);
-    function FacebookBot(botService, options) {
+    function FacebookBot(options) {
         var _this = this;
         _super.call(this);
-        this.botService = botService;
+        this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         this.options = {
             maxSessionAge: 14400000,
             defaultDialogId: '/',
@@ -21,7 +22,7 @@ var FacebookBot = (function (_super) {
         this.configure(options);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
-            botService.eventEmitter.on(value, function (data) {
+            _this.botService.eventEmitter.on(value, function (data) {
                 console.log('botService emitted message');
                 _this.handleEvent(value, data);
             });
