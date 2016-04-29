@@ -6,7 +6,6 @@ var FacebookBotService = (function () {
         this.page_token = page_token;
         this.validation_token = validation_token;
         this.eventEmitter = new events.EventEmitter();
-        this.receive = this.receive.bind(this);
     }
     FacebookBotService.prototype.send = function (sender, text, errorHandler) {
         console.log(sender, text);
