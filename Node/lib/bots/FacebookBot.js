@@ -13,13 +13,13 @@ var FacebookBot = (function (_super) {
     function FacebookBot(options) {
         var _this = this;
         _super.call(this);
-        this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         this.options = {
             maxSessionAge: 14400000,
             defaultDialogId: '/',
-            minSendDelay: 1000
+            minSendDelay: 1000,
         };
         this.configure(options);
+        this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
             _this.botService.eventEmitter.on(value, function (data) {

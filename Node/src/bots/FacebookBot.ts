@@ -1,6 +1,7 @@
 import collection = require('../dialogs/DialogCollection');
 import session = require('../Session');
 import storage = require('../storage/Storage');
+import botService = require('./FacebookBotService');
 
 export interface IFacebookBotOptions {
     userStore?: storage.IStorage;
@@ -15,6 +16,8 @@ export interface IFacebookBotOptions {
     botRemovedMessage?: string;
     memberAddedMessage?: string;
     memberRemovedMessage?: string;
+    page_token?:string;
+    validation_token?:string;
 }
 
 export interface IFacebookBotMessage {
@@ -29,24 +32,27 @@ export interface IFacebookBotMessage {
 }
 
 export interface IFacebookBotService {
+  FacebookBotService: any,
   eventEmitter: any,
-  send: any,
-  receive: any
+  send: any
 }
 
 export class FacebookBot extends collection.DialogCollection {
     private options: IFacebookBotOptions = {
         maxSessionAge: 14400000,    // <-- default max session age of 4 hours
         defaultDialogId: '/',
-        minSendDelay: 1000
+        minSendDelay: 1000,       
     };
+    
+    private botService: any;
 
-    constructor(protected botService: IFacebookBotService, options?: IFacebookBotOptions) {
+    constructor(options?: IFacebookBotOptions) {
         super();
         this.configure(options);
+        this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach((value) => {
-            botService.eventEmitter.on(value, (data: IFacebookBotMessage) => {
+            this.botService.eventEmitter.on(value, (data: IFacebookBotMessage) => {
                 console.log('botService emitted message');
                 this.handleEvent(value, data);
             });

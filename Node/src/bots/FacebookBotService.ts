@@ -20,7 +20,6 @@ export class FacebookBotService {
         this.page_token = page_token;
         this.validation_token = validation_token;
         this.eventEmitter = new events.EventEmitter();
-        this.receive = this.receive.bind(this); // ensures this has class scope and not caller scope
     }
 
     send(sender: string, text: string, errorHandler: any) {
@@ -51,12 +50,11 @@ export class FacebookBotService {
             });
     }
 
-    receive(req: any, res: any) {
-        console.log('receive handler called', req.body);
-
-        var messaging_events = req.body.entry[0].messaging;
+    receive(message: any) {
+        console.log('receive handler called', message);
+        var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
-            var event = req.body.entry[0].messaging[i];
+            var event = message.entry[0].messaging[i];
             var sender = event.recipient.id;
             var recipient = event.sender.id;
             if (event.message && event.message.text) {
@@ -71,19 +69,15 @@ export class FacebookBotService {
                 });
             }
         }
-
-        res.send(200);
     }
 
-    validate(req: any, res: any) {
-        console.log('validate handler called', req.params);
-        if (req.params.hub.verify_token === this.validation_token) {
-            var challenge = Number(req.params.hub.challenge);
-            res.send(200, challenge);
-            console.log('validation successful');
+    validate(params: any, cb: any) {
+        console.log('validate handler called', params);
+        if (params.hub.verify_token === this.validation_token) {
+            var challenge = Number(params.hub.challenge);
+            cb(null, challenge);
             return;
         }
-        console.error('Error, wrong validation token');
-        res.send('Error, wrong validation token');
+        cb('validation failed');
     }
 }
