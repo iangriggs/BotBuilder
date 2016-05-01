@@ -10,30 +10,26 @@
 import events = require('events');
 import request = require('request');
 
-interface IFacebookReceiveMessaging {
-    recipient: {
-        id: number;
-    },
-    sender: {
-        id: number;
-    },
-    message: {
-        text: string;
-        mid: string;
-        seq: number;
-    },
-    timestamp: number;
-}
-
-interface IFacebookReceiveEntry {
-    id: number;
-    time: number;
-    messaging: IFacebookReceiveMessaging[];
-}
-
 interface IFacebookReceive {
     object: string;
-    entry: IFacebookReceiveEntry[];
+    entry: {
+        id: number;
+        time: number;
+        messaging: {
+            recipient: {
+                id: number;
+            },
+            sender: {
+                id: number;
+            },
+            message: {
+                text: string;
+                mid: string;
+                seq: number;
+            },
+            timestamp: number;
+        }[];
+    }[];
 }
 
 interface IFacebookValidateParams {
