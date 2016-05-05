@@ -6,8 +6,10 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var collection = require('../dialogs/DialogCollection');
 var session = require('../Session');
-var storage = require('../storage/Storage');
+var memory = require('../storage/Storage');
+var dynamoDb = require('../storage/DynamoDBStorage');
 var botService = require('./FacebookBotService');
+var consts = require('../consts');
 var FacebookBot = (function (_super) {
     __extends(FacebookBot, _super);
     function FacebookBot(options) {
@@ -23,7 +25,7 @@ var FacebookBot = (function (_super) {
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
             _this.botService.on(value, function (data) {
-                console.log('botService emitted message');
+                console.log('bot message', JSON.stringify(data));
                 _this.handleEvent(value, data);
             });
         });
@@ -93,10 +95,20 @@ var FacebookBot = (function (_super) {
     FacebookBot.prototype.getData = function (userId, callback) {
         var _this = this;
         if (!this.options.userStore) {
-            this.options.userStore = new storage.MemoryStorage();
+            if (this.options.storage && this.options.storage.provider === consts.StorageProviders.DynamoDb) {
+                this.options.userStore = new dynamoDb.DynamoDBStorage(consts.StorageTypes.User, this.options.storage);
+            }
+            else {
+                this.options.userStore = new memory.MemoryStorage();
+            }
         }
         if (!this.options.sessionStore) {
-            this.options.sessionStore = new storage.MemoryStorage();
+            if (this.options.storage && this.options.storage.provider === consts.StorageProviders.DynamoDb) {
+                this.options.sessionStore = new dynamoDb.DynamoDBStorage(consts.StorageTypes.Session, this.options.storage);
+            }
+            else {
+                this.options.sessionStore = new memory.MemoryStorage();
+            }
         }
         var ops = 2;
         var userData, sessionState;

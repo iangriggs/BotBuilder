@@ -1,11 +1,13 @@
 import collection = require('../dialogs/DialogCollection');
 import session = require('../Session');
-import storage = require('../storage/Storage');
+import memory = require('../storage/Storage');
+import dynamoDb = require('../storage/DynamoDBStorage');
 import botService = require('./FacebookBotService');
+import consts = require('../consts');
 
 export interface IFacebookBotOptions {
-    userStore?: storage.IStorage;
-    sessionStore?: storage.IStorage;
+    userStore?: IStorage;
+    sessionStore?: IStorage;
     maxSessionAge?: number;
     localizer?: ILocalizer;
     minSendDelay?: number;
@@ -16,24 +18,25 @@ export interface IFacebookBotOptions {
     botRemovedMessage?: string;
     memberAddedMessage?: string;
     memberRemovedMessage?: string;
-    page_token?:string;
-    validation_token?:string;
+    page_token?: string;
+    validation_token?: string;
+    storage?: IStorageOptions;
 }
 
 export interface IFacebookBotMessage {
-  to: string;
-  from: string;
-  type: string;
-  content: string;
-  messageId: number;
-  text: string;
-  contentType: string;
-  eventTime: number;
+    to: string;
+    from: string;
+    type: string;
+    content: string;
+    messageId: number;
+    text: string;
+    contentType: string;
+    eventTime: number;
 }
 
 export interface IFacebookBotService {
-  send(sender: string, text: string, errorHandler: any): void;
-  on(event: string, listener: Function): void;
+    send(sender: string, text: string, errorHandler: any): void;
+    on(event: string, listener: Function): void;
 }
 
 export class FacebookBot extends collection.DialogCollection {
@@ -52,7 +55,7 @@ export class FacebookBot extends collection.DialogCollection {
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach((value) => {
             this.botService.on(value, (data: IFacebookBotMessage) => {
-                console.log('botService emitted message');
+                console.log('bot message', JSON.stringify(data));
                 this.handleEvent(value, data);
             });
         });
@@ -134,10 +137,18 @@ export class FacebookBot extends collection.DialogCollection {
     private getData(userId: string, callback: (userData: any, sessionState: ISessionState) => void) {
         // Ensure stores specified
         if (!this.options.userStore) {
-            this.options.userStore = new storage.MemoryStorage();
+            if (this.options.storage && this.options.storage.provider === consts.StorageProviders.DynamoDb) {
+                this.options.userStore = new dynamoDb.DynamoDBStorage(consts.StorageTypes.User, this.options.storage);
+            } else {
+                this.options.userStore = new memory.MemoryStorage();
+            }
         }
         if (!this.options.sessionStore) {
-            this.options.sessionStore = new storage.MemoryStorage();
+            if (this.options.storage && this.options.storage.provider === consts.StorageProviders.DynamoDb) {
+                this.options.sessionStore = new dynamoDb.DynamoDBStorage(consts.StorageTypes.Session, this.options.storage);
+            } else {
+                this.options.sessionStore = new memory.MemoryStorage();
+            }
         }
 
         // Load data

@@ -14,7 +14,7 @@ var FacebookBotService = (function (_super) {
         this.validation_token = validation_token;
     }
     FacebookBotService.prototype.send = function (sender, text, errorHandler) {
-        console.log(sender, text);
+        console.log('send', sender, text);
         var messageData = { text: text };
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -38,7 +38,7 @@ var FacebookBotService = (function (_super) {
         });
     };
     FacebookBotService.prototype.receive = function (message) {
-        console.log('receive handler called', message);
+        console.log('receive', JSON.stringify(message));
         var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
             var event = message.entry[0].messaging[i];
@@ -47,7 +47,6 @@ var FacebookBotService = (function (_super) {
             if (event.message && event.message.text) {
                 var text = event.message.text;
                 var id = event.message.mid;
-                console.log('message received:', text, sender);
                 this.emit('message', {
                     messageId: id,
                     text: text,
@@ -58,11 +57,21 @@ var FacebookBotService = (function (_super) {
         }
     };
     FacebookBotService.prototype.validate = function (params, callback) {
-        console.log('validate handler called', params);
-        if (params.hub.verify_token === this.validation_token) {
-            var challenge = Number(params.hub.challenge);
-            callback(null, challenge);
-            return;
+        console.log('validate', JSON.stringify(params));
+        if (params) {
+            if (params.hub) {
+                var hub_verify_token = params.hub.verify_token;
+                var hub_challenge = params.hub.challenge;
+            }
+            else {
+                var hub_verify_token = params['hub.verify_token'];
+                var hub_challenge = params['hub.challenge'];
+            }
+            if (hub_verify_token === this.validation_token) {
+                var challenge = Number(hub_challenge);
+                callback(null, challenge);
+                return;
+            }
         }
         callback(new Error('validation failed'));
     };

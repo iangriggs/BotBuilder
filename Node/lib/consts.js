@@ -16,3 +16,11 @@ exports.Id = {
 exports.Intents = {
     Default: 'BotBuilder.Intents.Default'
 };
+exports.StorageProviders = {
+    Memory: 'memory',
+    DynamoDb: 'dynamodb'
+};
+exports.StorageTypes = {
+    User: 'user',
+    Session: 'session'
+};

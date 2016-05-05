@@ -2,6 +2,7 @@
 var MemoryStorage = (function () {
     function MemoryStorage() {
         this.store = {};
+        console.log('set storage: memory');
     }
     MemoryStorage.prototype.get = function (id, callback) {
         if (this.store.hasOwnProperty(id)) {

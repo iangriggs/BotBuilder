@@ -3,7 +3,10 @@
 //
 // I had to also run 'npm install' from the ../../../Node folder to get some
 // some dependencies installed including chrono-node, node-uuid, request
-// and sprintf-js
+// and sprintf-
+//
+// This version demonstrates the briefest of conversations using the dynamodb
+// storage provider.
 
 var restify = require('restify');
 var builder = require('../../');
@@ -21,12 +24,30 @@ if (!validation_token) {
 
 var options = {
   page_token,
-  validation_token
+  validation_token,
+  storage: {
+    provider: 'dynamodb',
+    partition_key:'iansbot1',
+    table: 'BotSessions',
+    region: 'eu-west-1'
+  }
 };
 
-bot.add('/', function (session) {
-   session.send('Hello World');
-});
+var dialog = new builder.CommandDialog();
+var bot = new builder.FacebookBot(options);
+bot.add('/', dialog);
+dialog.matches('^echo', [
+    function (session) {
+        builder.Prompts.text(session, "What would you like me to say?");
+    },
+    function (session, results) {
+        if (results.response) {
+            session.send("Ok... %s", results.response);
+        } else {
+            session.send("Ok");
+        }
+    }
+]);
 
 var server = restify.createServer();
 server.use(restify.bodyParser());
