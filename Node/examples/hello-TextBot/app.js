@@ -11,8 +11,8 @@ A simple "Hello World" bot that can be run from a console window.
 var builder = require('../../');
 
 var bot = new builder.TextBot();
-bot.add('/', function (session) {
-   session.send('Hello World'); 
+bot.add('/', function(session) {
+    session.send('Hello World'); 
 });
 
 bot.listenStdin();

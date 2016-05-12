@@ -27,7 +27,7 @@ export interface IFacebookBotMessage {
     to: string;
     from: string;
     type: string;
-    content: string;
+    content: IFacebookBotMessageContent;
     messageId: number;
     text: string;
     contentType: string;
@@ -35,7 +35,7 @@ export interface IFacebookBotMessage {
 }
 
 export interface IFacebookBotService {
-    send(sender: string, text: string, errorHandler: any): void;
+    send(sender: string, message: IFacebookBotMessageContent, errorHandler: any): void;
     on(event: string, listener: Function): void;
 }
 
@@ -54,9 +54,9 @@ export class FacebookBot extends collection.DialogCollection {
         this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach((value) => {
-            this.botService.on(value, (data: IFacebookBotMessage) => {
-                console.log('bot message', JSON.stringify(data));
-                this.handleEvent(value, data);
+            this.botService.on(value, (message: IFacebookBotMessage) => {
+                console.log('bot message', JSON.stringify(message));
+                this.handleEvent(value, message);
             });
         });
     }
@@ -96,9 +96,9 @@ export class FacebookBot extends collection.DialogCollection {
         }
     }
 
-    private dispatchMessage(data: IFacebookBotMessage, dialogId: string, dialogArgs: any) {
+    private dispatchMessage(message: IFacebookBotMessage, dialogId: string, dialogArgs: any) {
         var onError = (err: Error) => {
-            this.emit('error', err, data);
+            this.emit('error', err, message);
         };
 
         // Initialize session
@@ -111,8 +111,7 @@ export class FacebookBot extends collection.DialogCollection {
         });
         ses.on('send', (reply: IMessage) => {
             this.saveData(msg.from.address, ses.userData, ses.sessionState, () => {
-                // If we have no message text then we're just saving state.
-                if (reply && reply.text) {
+                if (reply) {
                     var facebookReply = this.toFacebookMessage(reply);
                     facebookReply.to = ses.message.to.address;
                     this.botService.send(facebookReply.to, facebookReply.content, onError);
@@ -120,14 +119,14 @@ export class FacebookBot extends collection.DialogCollection {
             });
         });
         ses.on('error', (err: Error) => {
-            this.emit('error', err, data);
+            this.emit('error', err, message);
         });
         ses.on('quit', () => {
-            this.emit('quit', data);
+            this.emit('quit', message);
         });
 
         // Load data and dispatch message
-        var msg = this.fromFacebookMessage(data);
+        var msg = this.fromFacebookMessage(message);
         this.getData(msg.from.address, (userData, sessionState) => {
             ses.userData = userData || {};
             ses.dispatch(sessionState, msg);
@@ -209,20 +208,42 @@ export class FacebookBot extends collection.DialogCollection {
             channelData: msg
         };
     }
+    
+    private toMessageContent(msg:IMessage): IFacebookBotMessageContent {
+        if (!msg) {
+            return;
+        }
+        
+        var content: any = { text: msg.text };
+        if (msg.attachments && msg.attachments.length > 0) {
+            var attachment = msg.attachments[0];
+            if (attachment.contentType) {
+                content = {
+                    attachment: {
+                        type: 'image',
+                        payload: {
+                            url: attachment.contentUrl
+                        }
+                    }
+                }
+            }
+        }
+        
+        return content;
+    }
 
     private toFacebookMessage(msg: IMessage): IFacebookBotMessage {
         return <IFacebookBotMessage>{
             type: msg.type,
             from: msg.from ? msg.from.address : '',
             to: msg.to ? msg.to.address : '',
-            content: msg.text,
+            content: this.toMessageContent(msg),
             messageId: msg.id ? Number(msg.id) : Number.NaN,
             contentType: "RichText",
             eventTime: msg.channelData ? msg.channelData.eventTime : new Date().getTime()
         };
     }
 }
-
 
 export class FacebookSession extends session.Session {
 

@@ -48,10 +48,8 @@ export class FacebookBotService extends events.EventEmitter {
         this.validation_token = validation_token;
     }
 
-    send(sender: string, text: string, errorHandler: (err: Error) => void) {
-        console.log('send', sender, text);
-
-        var messageData = { text }
+    send(sender: string, message: IFacebookBotMessageContent, errorHandler: (err: Error) => void) {
+        console.log('send', sender, message);
 
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -63,7 +61,7 @@ export class FacebookBotService extends events.EventEmitter {
                 recipient: {
                     id: sender
                 },
-                message: messageData,
+                message: message,
             }
         }, function(error: Error, response: any, body: any) {
                 if (error) {

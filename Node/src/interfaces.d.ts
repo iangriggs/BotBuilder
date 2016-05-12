@@ -185,3 +185,8 @@ interface IStorageOptions {
   table: string;
   partition_key: string;
 }
+
+    
+interface IFacebookBotMessageContent {
+    text: string;
+}

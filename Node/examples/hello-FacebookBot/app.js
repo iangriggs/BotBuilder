@@ -31,9 +31,20 @@ var options = {
 };
 
 var bot = new builder.FacebookBot(options);
-bot.add('/', function (session) {
-   session.send('Hello World');
-});
+
+var msg = new Message().addAttachment({
+      text: 'Pick one:',
+      actions: [
+          { title: "Willy's Cheeseburger", message: "CB" },
+          { title: "Curley Fries", message: "F" },
+          { title: "Chocolate Shake", message: "S" }
+      ]
+  });
+  session.send(msg);
+
+// bot.add('/', function (session) {
+//    session.send('Hello World');
+// });
 
 var server = restify.createServer();
 server.use(restify.bodyParser());

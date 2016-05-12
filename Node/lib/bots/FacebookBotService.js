@@ -13,9 +13,8 @@ var FacebookBotService = (function (_super) {
         this.page_token = page_token;
         this.validation_token = validation_token;
     }
-    FacebookBotService.prototype.send = function (sender, text, errorHandler) {
-        console.log('send', sender, text);
-        var messageData = { text: text };
+    FacebookBotService.prototype.send = function (sender, message, errorHandler) {
+        console.log('send', sender, message);
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
             qs: {
@@ -26,7 +25,7 @@ var FacebookBotService = (function (_super) {
                 recipient: {
                     id: sender
                 },
-                message: messageData,
+                message: message,
             }
         }, function (error, response, body) {
             if (error) {

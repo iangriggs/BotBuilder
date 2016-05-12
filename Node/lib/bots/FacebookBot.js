@@ -24,9 +24,9 @@ var FacebookBot = (function (_super) {
         this.botService = new botService.FacebookBotService(options.page_token, options.validation_token);
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
-            _this.botService.on(value, function (data) {
-                console.log('bot message', JSON.stringify(data));
-                _this.handleEvent(value, data);
+            _this.botService.on(value, function (message) {
+                console.log('bot message', JSON.stringify(message));
+                _this.handleEvent(value, message);
             });
         });
     }
@@ -59,10 +59,10 @@ var FacebookBot = (function (_super) {
                 break;
         }
     };
-    FacebookBot.prototype.dispatchMessage = function (data, dialogId, dialogArgs) {
+    FacebookBot.prototype.dispatchMessage = function (message, dialogId, dialogArgs) {
         var _this = this;
         var onError = function (err) {
-            _this.emit('error', err, data);
+            _this.emit('error', err, message);
         };
         var ses = new FacebookSession({
             localizer: this.options.localizer,
@@ -73,7 +73,7 @@ var FacebookBot = (function (_super) {
         });
         ses.on('send', function (reply) {
             _this.saveData(msg.from.address, ses.userData, ses.sessionState, function () {
-                if (reply && reply.text) {
+                if (reply) {
                     var facebookReply = _this.toFacebookMessage(reply);
                     facebookReply.to = ses.message.to.address;
                     _this.botService.send(facebookReply.to, facebookReply.content, onError);
@@ -81,12 +81,12 @@ var FacebookBot = (function (_super) {
             });
         });
         ses.on('error', function (err) {
-            _this.emit('error', err, data);
+            _this.emit('error', err, message);
         });
         ses.on('quit', function () {
-            _this.emit('quit', data);
+            _this.emit('quit', message);
         });
-        var msg = this.fromFacebookMessage(data);
+        var msg = this.fromFacebookMessage(message);
         this.getData(msg.from.address, function (userData, sessionState) {
             ses.userData = userData || {};
             ses.dispatch(sessionState, msg);
@@ -168,12 +168,32 @@ var FacebookBot = (function (_super) {
             channelData: msg
         };
     };
+    FacebookBot.prototype.toMessageContent = function (msg) {
+        if (!msg) {
+            return;
+        }
+        var content = { text: msg.text };
+        if (msg.attachments && msg.attachments.length > 0) {
+            var attachment = msg.attachments[0];
+            if (attachment.contentType) {
+                content = {
+                    attachment: {
+                        type: 'image',
+                        payload: {
+                            url: attachment.contentUrl
+                        }
+                    }
+                };
+            }
+        }
+        return content;
+    };
     FacebookBot.prototype.toFacebookMessage = function (msg) {
         return {
             type: msg.type,
             from: msg.from ? msg.from.address : '',
             to: msg.to ? msg.to.address : '',
-            content: msg.text,
+            content: this.toMessageContent(msg),
             messageId: msg.id ? Number(msg.id) : Number.NaN,
             contentType: "RichText",
             eventTime: msg.channelData ? msg.channelData.eventTime : new Date().getTime()
