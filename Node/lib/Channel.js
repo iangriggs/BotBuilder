@@ -1,3 +1,4 @@
+"use strict";
 function maxButtons(session) {
     var account = session.message.from || session.message.to;
     switch (account.channelId.toLowerCase()) {

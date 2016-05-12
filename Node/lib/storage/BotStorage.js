@@ -1,3 +1,4 @@
+"use strict";
 var MemoryBotStorage = (function () {
     function MemoryBotStorage() {
         this.userStore = {};
@@ -40,5 +41,5 @@ var MemoryBotStorage = (function () {
         }
     };
     return MemoryBotStorage;
-})();
+}());
 exports.MemoryBotStorage = MemoryBotStorage;

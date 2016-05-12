@@ -21,9 +21,16 @@ if (!validation_token) {
 
 var options = {
   page_token,
-  validation_token
+  validation_token,
+  // storage: {
+  //   provider: 'dynamodb',
+  //   partition_key:'iansbot1',
+  //   table: 'BotSessions',
+  //   region: 'eu-west-1'
+  // }
 };
 
+var bot = new builder.FacebookBot(options);
 bot.add('/', function (session) {
    session.send('Hello World');
 });
