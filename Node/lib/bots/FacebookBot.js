@@ -155,7 +155,7 @@ var FacebookBot = (function (_super) {
     FacebookBot.prototype.fromFacebookMessage = function (msg) {
         return {
             type: msg.type,
-            id: msg.messageId.toString(),
+            id: msg.messageId ? msg.messageId.toString() : '',
             from: {
                 channelId: 'facebook',
                 address: msg.from
@@ -181,6 +181,27 @@ var FacebookBot = (function (_super) {
                         type: 'image',
                         payload: {
                             url: attachment.contentUrl
+                        }
+                    }
+                };
+            }
+            else if (attachment.actions && attachment.actions.length > 0) {
+                var buttons = [];
+                attachment.actions.forEach(function (action) {
+                    console.log('action', JSON.stringify(action));
+                    buttons.push({
+                        type: 'postback',
+                        payload: action.message,
+                        title: action.title
+                    });
+                });
+                content = {
+                    attachment: {
+                        type: 'template',
+                        payload: {
+                            template_type: 'button',
+                            text: msg.text || attachment.text,
+                            buttons: buttons
                         }
                     }
                 };

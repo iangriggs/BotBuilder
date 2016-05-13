@@ -10,37 +10,37 @@ var builder = require('../../');
 
 var page_token = process.env.PAGE_TOKEN;
 if (!page_token) {
-  console.error('Page token required as PAGE_TOKEN environment variable.');
-  return;
+    console.error('Page token required as PAGE_TOKEN environment variable.');
+    return;
 }
 var validation_token = process.env.VALIDATION_TOKEN;
 if (!validation_token) {
-  console.error('Provide validation token required as VALIDATION_TOKEN environment variable.');
-  return;
+    console.error('Provide validation token required as VALIDATION_TOKEN environment variable.');
+    return;
 }
 
 var options = {
-  page_token,
-  validation_token,
-  // storage: {
-  //   provider: 'dynamodb',
-  //   partition_key:'iansbot1',
-  //   table: 'BotSessions',
-  //   region: 'eu-west-1'
-  // }
+    page_token,
+    validation_token,
+    // storage: {
+    //   provider: 'dynamodb',
+    //   partition_key:'iansbot1',
+    //   table: 'BotSessions',
+    //   region: 'eu-west-1'
+    // }
 };
 
 var bot = new builder.FacebookBot(options);
 
-var msg = new Message().addAttachment({
-      text: 'Pick one:',
-      actions: [
-          { title: "Willy's Cheeseburger", message: "CB" },
-          { title: "Curley Fries", message: "F" },
-          { title: "Chocolate Shake", message: "S" }
-      ]
-  });
-  session.send(msg);
+bot.add('/', [function(session) {
+    builder.Prompts.choice(session, "Which color?", ["red","green","blue"]);
+}, function(session, results) {
+    session.send('got it! ' + results.response.entity);
+    builder.Prompts.confirm(session, "Are you sure you wish to cancel your order?");
+}, function(session, results) {
+    session.send('got it 2! ' + results.response ? 'yes' : 'no');
+}
+]);
 
 // bot.add('/', function (session) {
 //    session.send('Hello World');
@@ -65,13 +65,13 @@ function receive(req, res) {
 
 function validate(req, res) {
     console.log('validate', JSON.stringify(req.params));
-    bot.botService.validate(req.params, function(err, challenge){
-      if (err) {
-          console.error(err);
-          res.send('Error, validation failed');
-          return;
-      }
-      console.log('validation successful');
-      res.send(200, challenge);
+    bot.botService.validate(req.params, function(err, challenge) {
+        if (err) {
+            console.error(err);
+            res.send('Error, validation failed');
+            return;
+        }
+        console.log('validation successful');
+        res.send(200, challenge);
     });
 };

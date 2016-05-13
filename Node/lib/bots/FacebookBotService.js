@@ -53,6 +53,14 @@ var FacebookBotService = (function (_super) {
                     from: sender
                 });
             }
+            else if (event.postback && event.postback.payload) {
+                this.emit('message', {
+                    messageId: id,
+                    text: event.postback.payload,
+                    to: recipient,
+                    from: sender
+                });
+            }
         }
     };
     FacebookBotService.prototype.validate = function (params, callback) {

@@ -195,7 +195,7 @@ export class FacebookBot extends collection.DialogCollection {
     private fromFacebookMessage(msg: IFacebookBotMessage): IMessage {
         return {
             type: msg.type,
-            id: msg.messageId.toString(),
+            id: msg.messageId ? msg.messageId.toString() : '', // TODO: postbacks don't have a messageId - what to do?
             from: {
                 channelId: 'facebook',
                 address: msg.from
@@ -215,6 +215,7 @@ export class FacebookBot extends collection.DialogCollection {
         }
         
         var content: any = { text: msg.text };
+        
         if (msg.attachments && msg.attachments.length > 0) {
             var attachment = msg.attachments[0];
             if (attachment.contentType) {
@@ -223,6 +224,28 @@ export class FacebookBot extends collection.DialogCollection {
                         type: 'image',
                         payload: {
                             url: attachment.contentUrl
+                        }
+                    }
+                }
+            } else if (attachment.actions && attachment.actions.length > 0) {
+                var buttons:any[] = [];
+                attachment.actions.forEach(function(action) {
+                    console.log('action', JSON.stringify(action))
+                    buttons.push({
+                        type: 'postback',  // TODO: handle web_url
+                        // url: 'https://upload.wikimedia.org/wikipedia/en/a/a6/Bender_Rodriguez.png', // TODO: for web_url
+                        payload: action.message,
+                        title: action.title
+                    });
+
+                })
+                content = {
+                    attachment: {
+                        type: 'template',
+                        payload: {
+                            template_type: 'button',
+                            text: msg.text || attachment.text,
+                            buttons: buttons                                                    
                         }
                     }
                 }

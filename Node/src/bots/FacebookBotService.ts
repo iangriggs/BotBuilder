@@ -22,11 +22,14 @@ interface IFacebookReceive {
             sender: {
                 id: number;
             },
-            message: {
+            message?: {
                 text: string;
                 mid: string;
                 seq: number;
             },
+            postback?: {
+                payload: string;
+            }
             timestamp: number;
         }[];
     }[];
@@ -88,6 +91,13 @@ export class FacebookBotService extends events.EventEmitter {
                     to: recipient,
                     from: sender
                 });
+            } else if (event.postback && event.postback.payload) {
+                this.emit('message', {
+                    messageId: id,
+                    text: event.postback.payload,
+                    to: recipient,
+                    from: sender
+                });                
             }
         }
     }
