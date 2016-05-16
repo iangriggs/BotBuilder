@@ -213,12 +213,13 @@ export class FacebookBot extends collection.DialogCollection {
         if (!msg) {
             return;
         }
-        
-        var content: any = { text: msg.text };
-        
+        var content: any = {
+            text: msg.text
+        };
+
         if (msg.attachments && msg.attachments.length > 0) {
-            var attachment = msg.attachments[0];
-            if (attachment.contentType) {
+            if (msg.attachments[0].contentType) {
+                var attachment = msg.attachments[0];
                 content = {
                     attachment: {
                         type: 'image',
@@ -226,32 +227,71 @@ export class FacebookBot extends collection.DialogCollection {
                             url: attachment.contentUrl
                         }
                     }
-                }
-            } else if (attachment.actions && attachment.actions.length > 0) {
-                var buttons:any[] = [];
+                };
+            } else if (msg.attachments[0].thumbnailUrl) {
+                var elements: any[] = [];
+                msg.attachments.forEach(function(attachment) {
+                    var buttons: any[] = [];
+                    if (attachment.actions) {
+                        attachment.actions.forEach(function(action) {
+                            var button: any = {};
+                            button.title = action.title;
+                            if (action.url) {
+                                button.type = 'web_url';
+                                button.url = action.url;
+                            } else {
+                                button.type = 'postback';
+                                button.payload = action.message
+
+                            }
+                            buttons.push(button);
+                        })
+                    }
+                    
+                    var element: any = {
+                        title: attachment.title,
+                        image_url: attachment.thumbnailUrl,
+                        subtitle: attachment.text,
+                    };
+                    if (buttons.length > 0) {
+                        element.buttons = buttons;
+                    }
+                    
+                    elements.push(element);
+                });
+
+                content = {
+                    attachment: {
+                        type: 'template',
+                        payload: {
+                            template_type: 'generic',
+                            elements: elements
+                        }
+                    }
+                };
+            } else if (msg.attachments[0].actions && msg.attachments[0].actions.length > 0) {
+                var attachment = msg.attachments[0];
+                var buttons: any[] = [];
                 attachment.actions.forEach(function(action) {
-                    console.log('action', JSON.stringify(action))
                     buttons.push({
-                        type: 'postback',  // TODO: handle web_url
-                        // url: 'https://upload.wikimedia.org/wikipedia/en/a/a6/Bender_Rodriguez.png', // TODO: for web_url
+                        type: 'postback',
                         payload: action.message,
                         title: action.title
                     });
-
-                })
+                });
                 content = {
                     attachment: {
                         type: 'template',
                         payload: {
                             template_type: 'button',
                             text: msg.text || attachment.text,
-                            buttons: buttons                                                    
+                            buttons: buttons
                         }
                     }
-                }
+                };
             }
         }
-        
+
         return content;
     }
 

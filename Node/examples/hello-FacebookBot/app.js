@@ -21,30 +21,15 @@ if (!validation_token) {
 
 var options = {
     page_token,
-    validation_token,
-    // storage: {
-    //   provider: 'dynamodb',
-    //   partition_key:'iansbot1',
-    //   table: 'BotSessions',
-    //   region: 'eu-west-1'
-    // }
+    validation_token
 };
 
 var bot = new builder.FacebookBot(options);
 
-bot.add('/', [function(session) {
-    builder.Prompts.choice(session, "Which color?", ["red","green","blue"]);
-}, function(session, results) {
-    session.send('got it! ' + results.response.entity);
-    builder.Prompts.confirm(session, "Are you sure you wish to cancel your order?");
-}, function(session, results) {
-    session.send('got it 2! ' + results.response ? 'yes' : 'no');
-}
-]);
-
-// bot.add('/', function (session) {
-//    session.send('Hello World');
-// });
+// Simple hello world
+bot.add('/', function (session) {
+   session.send('Hello World');
+});
 
 var server = restify.createServer();
 server.use(restify.bodyParser());
