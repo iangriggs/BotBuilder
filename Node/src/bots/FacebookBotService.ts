@@ -7,6 +7,8 @@
 //
 // See ../../examples/hello-FacebookBot for an example of using it!!!!.
 
+import Debug = require('debug')
+const debug = Debug('FacebookBotService');
 import events = require('events');
 import request = require('request');
 
@@ -52,7 +54,7 @@ export class FacebookBotService extends events.EventEmitter {
     }
 
     send(sender: string, message: IFacebookBotMessageContent, errorHandler: (err: Error) => void) {
-        console.log('send', sender, message);
+        debug('send', sender, message);
 
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
@@ -68,15 +70,15 @@ export class FacebookBotService extends events.EventEmitter {
             }
         }, function(error: Error, response: any, body: any) {
                 if (error) {
-                    console.error('Error sending message: ', error);
+                    debug('Error sending message: ', error);
                 } else if (response.body.error) {
-                    console.error('Error: ', response.body.error);
+                    debug('Error: ', response.body.error);
                 }
             });
     }
 
     receive(message: IFacebookReceive) {
-        console.log('receive', JSON.stringify(message));
+        debug('receive', JSON.stringify(message));
         var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
             var event = message.entry[0].messaging[i];
@@ -103,7 +105,7 @@ export class FacebookBotService extends events.EventEmitter {
     }
 
     validate(params: IFacebookValidateParams, callback: (error: Error, challenge?: number) => void) {
-      console.log('validate', JSON.stringify(params));
+      debug('validate', JSON.stringify(params));
       if (params) {
           if (params.hub) {
               var hub_verify_token = params.hub.verify_token;

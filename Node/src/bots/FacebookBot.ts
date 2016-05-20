@@ -1,3 +1,5 @@
+import Debug = require('debug')
+const debug = Debug('FacebookBot');
 import collection = require('../dialogs/DialogCollection');
 import session = require('../Session');
 import memory = require('../storage/Storage');
@@ -55,7 +57,7 @@ export class FacebookBot extends collection.DialogCollection {
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach((value) => {
             this.botService.on(value, (message: IFacebookBotMessage) => {
-                console.log('bot message', JSON.stringify(message));
+                debug('bot message', JSON.stringify(message));
                 this.handleEvent(value, message);
             });
         });

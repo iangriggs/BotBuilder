@@ -1,3 +1,5 @@
+import Debug = require('debug')
+const debug = Debug('DynamoDBStorage');
 import utils = require('../utils');
 import AWS = require('aws-sdk');
 
@@ -8,7 +10,7 @@ export class DynamoDBStorage implements IStorage {
     private partitionKey: string;
 
     constructor(type: string, storage: IStorageOptions) {
-        console.log(`set storage: dynamodb: ${type}`)
+        debug(`set storage: dynamodb: ${type}`)
         AWS.config.update({
             region: storage.region
         });
@@ -25,7 +27,7 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        console.log(`get: ${this.partitionKey}`, JSON.stringify(params));
+        debug(`get: ${this.partitionKey}`, JSON.stringify(params));
         this.dd.get(params, function(err: Error, result: any) {
             if (err) {
                 callback(err);
@@ -50,7 +52,7 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        console.log(`put ${this.partitionKey}`, JSON.stringify(params));
+        debug(`put ${this.partitionKey}`, JSON.stringify(params));
         this.dd.put(params, callback);
     }
 
@@ -62,7 +64,7 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        console.log(`delete ${this.partitionKey}`, JSON.stringify(params));
+        debug(`delete ${this.partitionKey}`, JSON.stringify(params));
         this.dd.delete(params, callback);
     }
 }

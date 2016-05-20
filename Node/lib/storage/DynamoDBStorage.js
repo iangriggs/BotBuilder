@@ -1,7 +1,9 @@
+var Debug = require('debug');
+var debug = Debug('DynamoDBStorage');
 var AWS = require('aws-sdk');
 var DynamoDBStorage = (function () {
     function DynamoDBStorage(type, storage) {
-        console.log("set storage: dynamodb: " + type);
+        debug("set storage: dynamodb: " + type);
         AWS.config.update({
             region: storage.region
         });
@@ -17,7 +19,7 @@ var DynamoDBStorage = (function () {
             },
             TableName: this.ddTable
         };
-        console.log("get: " + this.partitionKey, JSON.stringify(params));
+        debug("get: " + this.partitionKey, JSON.stringify(params));
         this.dd.get(params, function (err, result) {
             if (err) {
                 callback(err);
@@ -39,7 +41,7 @@ var DynamoDBStorage = (function () {
             },
             TableName: this.ddTable
         };
-        console.log("put " + this.partitionKey, JSON.stringify(params));
+        debug("put " + this.partitionKey, JSON.stringify(params));
         this.dd.put(params, callback);
     };
     DynamoDBStorage.prototype.delete = function (id, callback) {
@@ -50,7 +52,7 @@ var DynamoDBStorage = (function () {
             },
             TableName: this.ddTable
         };
-        console.log("delete " + this.partitionKey, JSON.stringify(params));
+        debug("delete " + this.partitionKey, JSON.stringify(params));
         this.dd.delete(params, callback);
     };
     return DynamoDBStorage;

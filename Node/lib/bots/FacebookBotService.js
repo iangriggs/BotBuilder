@@ -3,6 +3,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Debug = require('debug');
+var debug = Debug('FacebookBotService');
 var events = require('events');
 var request = require('request');
 var FacebookBotService = (function (_super) {
@@ -13,7 +15,7 @@ var FacebookBotService = (function (_super) {
         this.validation_token = validation_token;
     }
     FacebookBotService.prototype.send = function (sender, message, errorHandler) {
-        console.log('send', sender, message);
+        debug('send', sender, message);
         request({
             url: 'https://graph.facebook.com/v2.6/me/messages',
             qs: {
@@ -28,15 +30,15 @@ var FacebookBotService = (function (_super) {
             }
         }, function (error, response, body) {
             if (error) {
-                console.error('Error sending message: ', error);
+                debug('Error sending message: ', error);
             }
             else if (response.body.error) {
-                console.error('Error: ', response.body.error);
+                debug('Error: ', response.body.error);
             }
         });
     };
     FacebookBotService.prototype.receive = function (message) {
-        console.log('receive', JSON.stringify(message));
+        debug('receive', JSON.stringify(message));
         var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
             var event = message.entry[0].messaging[i];
@@ -63,7 +65,7 @@ var FacebookBotService = (function (_super) {
         }
     };
     FacebookBotService.prototype.validate = function (params, callback) {
-        console.log('validate', JSON.stringify(params));
+        debug('validate', JSON.stringify(params));
         if (params) {
             if (params.hub) {
                 var hub_verify_token = params.hub.verify_token;

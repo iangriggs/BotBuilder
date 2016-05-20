@@ -3,6 +3,8 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var Debug = require('debug');
+var debug = Debug('FacebookBot');
 var collection = require('../dialogs/DialogCollection');
 var session = require('../Session');
 var memory = require('../storage/Storage');
@@ -24,7 +26,7 @@ var FacebookBot = (function (_super) {
         var events = 'message|message_deliveries|messaging_optins|messaging_postbacks'.split('|');
         events.forEach(function (value) {
             _this.botService.on(value, function (message) {
-                console.log('bot message', JSON.stringify(message));
+                debug('bot message', JSON.stringify(message));
                 _this.handleEvent(value, message);
             });
         });
