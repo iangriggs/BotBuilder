@@ -39,6 +39,7 @@ import request = require('request');
 import storage = require('../storage/Storage');
 import bcStorage = require('../storage/BotConnectorStorage');
 import uuid = require('node-uuid');
+import http = require('http');
 
 export interface IBotConnectorOptions {
     endpoint?: string;
@@ -313,10 +314,15 @@ export class BotConnectorBot extends collection.DialogCollection {
                             reply.channelMessageId = ses.message.channelMessageId;
                             reply.participants = ses.message.participants;
                             reply.totalParticipants = ses.message.totalParticipants;
+                            if (!reply.language && ses.message.language) {
+                                reply.language = ses.message.language;
+                            }
                             this.emit('reply', reply);
                             post(settings, '/bot/v1.0/messages', reply, (err) => {
                                 if (err) {
                                     this.emit('error', err);
+                                } else if (response.statusCode >= 400) {
+                                    console.error(response.statusMessage);
                                 }
                             });
                         } else {
@@ -327,6 +333,8 @@ export class BotConnectorBot extends collection.DialogCollection {
                             post(settings, '/bot/v1.0/messages', reply, (err) => {
                                 if (err) {
                                     this.emit('error', err);
+                                } else if (response.statusCode >= 400) {
+                                    console.error(response.statusMessage);
                                 }
                             });
                         }
@@ -463,7 +471,7 @@ export class BotConnectorSession extends session.Session {
     public perUserInConversationData: any;
 }
 
-function post(settings: IBotConnectorOptions, path: string, body: any, callback?: (error: any) => void): void {
+function post(settings: IBotConnectorOptions, endpoint: string, path: string, body: any, callback?: (error: any, response?: http.IncomingMessage, body?: any) => void): void {
     var options: request.Options = {
         method: 'POST',
         url: settings.endpoint + path,
