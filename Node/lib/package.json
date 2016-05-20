@@ -1,6 +1,6 @@
 {
   "name": "thelab-botbuilder-fb",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "A tweaked version of Microsoft botbuilder that includes a facebook provider for use in The Lab.",
   "main": "botbuilder.js",
   "scripts": {
