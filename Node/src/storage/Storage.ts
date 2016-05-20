@@ -41,10 +41,6 @@ export interface IStorage {
 export class MemoryStorage implements IStorage {
     private store: { [id: string]: string; } = {};
 
-    constructor() {
-      console.log('set storage: memory');
-    }
-    
     public get(id: string, callback: (err: Error, data: any) => void): void {
         if (this.store.hasOwnProperty(id)) {
             callback(null, JSON.parse(this.store[id]));
