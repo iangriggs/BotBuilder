@@ -31,7 +31,6 @@ bot.add('/secondary', [function(session) {
 
 luisDialog.onBegin(function(session, args, next){
     session.send('On begin - say \'help\' to fire intent'); 
-    next();  
 });
 
 luisDialog.onDefault(function(session) {
