@@ -291,8 +291,13 @@ export class BotConnectorBot extends collection.DialogCollection {
                     data.perUserConversationData[consts.Data.SessionState] = ses.sessionState;
                     this.saveData(userId, sessionId, data, reply, (err) =>{
                         // Check for emulator
-                        var settings = ses.message.to.channelId == 'emulator' ? { endpoint: 'http://localhost:9000' } : this.options;
-
+                        var endpoint: string;
+                        if (ses.message.to.channelId == 'emulator') {
+                            endpoint = this.options.endpoint || 'http://localhost:9000';
+                        } else {
+                            endpoint = this.options.endpoint || 'https://api.botframework.com';
+                        }
+                        
                         // Send message
                         if (res) {
                             this.emit('reply', reply);
