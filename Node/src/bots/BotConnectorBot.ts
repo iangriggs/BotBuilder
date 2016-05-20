@@ -46,9 +46,9 @@ export interface IBotConnectorOptions {
     appId?: string;
     appSecret?: string;
     defaultFrom?: IChannelAccount;
-    userStore?: IStorage;
-    conversationStore?: IStorage;
-    perUserInConversationStore?: IStorage;
+    userStore?: storage.IStorage;
+    conversationStore?: storage.IStorage;
+    perUserInConversationStore?: storage.IStorage;
     localizer?: ILocalizer;
     minSendDelay?: number;
     defaultDialogId?: string;
@@ -92,7 +92,7 @@ interface IDispatchOptions {
 
 export class BotConnectorBot extends collection.DialogCollection {
     private options: IBotConnectorOptions = {
-        endpoint: process.env['endpoint'] || 'https://api.botframework.com',
+        endpoint: process.env['endpoint'],
         appId: process.env['appId'] || '',
         appSecret: process.env['appSecret'] || '',
         defaultDialogId: '/',
@@ -318,7 +318,7 @@ export class BotConnectorBot extends collection.DialogCollection {
                                 reply.language = ses.message.language;
                             }
                             this.emit('reply', reply);
-                            post(settings, '/bot/v1.0/messages', reply, (err) => {
+                            post(this.options, endpoint, '/bot/v1.0/messages', reply, (err, response) => {
                                 if (err) {
                                     this.emit('error', err);
                                 } else if (response.statusCode >= 400) {
@@ -330,7 +330,7 @@ export class BotConnectorBot extends collection.DialogCollection {
                             reply.from = ses.message.from;
                             reply.to = ses.message.to;
                             this.emit('send', reply);
-                            post(settings, '/bot/v1.0/messages', reply, (err) => {
+                            post(this.options, endpoint, '/bot/v1.0/messages', reply, (err, response) => {
                                 if (err) {
                                     this.emit('error', err);
                                 } else if (response.statusCode >= 400) {
@@ -407,7 +407,7 @@ export class BotConnectorBot extends collection.DialogCollection {
         // Load data
         var ops = 3;
         var data = <IStoredData>{};
-        function load(id: string, field: string, store: IStorage, botData: any) {
+        function load(id: string, field: string, store: storage.IStorage, botData: any) {
             (<any>data)[field] = botData;
             if (store) {
                 store.get(id, (err, item) => {
@@ -441,7 +441,7 @@ export class BotConnectorBot extends collection.DialogCollection {
 
         // Save data
         var ops = 3;
-        function save(id: string, field: string, store: IStorage, botData: any) {
+        function save(id: string, field: string, store: storage.IStorage, botData: any) {
             if (store) {
                 store.save(id, botData, (err) => {
                     if (callback) {
@@ -474,7 +474,7 @@ export class BotConnectorSession extends session.Session {
 function post(settings: IBotConnectorOptions, endpoint: string, path: string, body: any, callback?: (error: any, response?: http.IncomingMessage, body?: any) => void): void {
     var options: request.Options = {
         method: 'POST',
-        url: settings.endpoint + path,
+        url: endpoint + path,
         body: body,
         json: true
     };

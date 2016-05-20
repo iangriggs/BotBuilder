@@ -1322,7 +1322,7 @@ export class Prompts extends Dialog {
      * * __prompt:__ _{string}_ - Initial message to send the user.
      * * __prompt:__ _{string[]}_ - Array of possible messages to send user. One will be chosen at random. 
      * * __prompt:__ _{IMessage}_ - Initial message to send the user. Message can contain attachments. 
-     * @param options Optional flags parameters to control the behaviour of the prompt.
+     * @param options Optional parameters to control the behaviour of the prompt.
      */
     static number(session: Session, prompt: string|string[]|IMessage, options?: IPromptOptions): void;
 
@@ -1333,7 +1333,7 @@ export class Prompts extends Dialog {
      * * __prompt:__ _{string}_ - Initial message to send the user.
      * * __prompt:__ _{string[]}_ - Array of possible messages to send user. One will be chosen at random. 
      * * __prompt:__ _{IMessage}_ - Initial message to send the user. Message can contain attachments. 
-     * @param options Optional flags parameters to control the behaviour of the prompt.
+     * @param options Optional parameters to control the behaviour of the prompt.
      */
     static confirm(session: Session, prompt: string|string[]|IMessage, options?: IPromptOptions): void;
 
@@ -1348,7 +1348,7 @@ export class Prompts extends Dialog {
      * * __choices:__ _{string}_ - List of choices as a pipe ('|') delimted string.
      * * __choices:__ _{Object}_ - List of choices expressed as an Object map. The objects field names will be used to build the list of values.
      * * __choices:__ _{string[]}_ - List of choices as an array of strings. 
-     * @param options Optional flags parameters to control the behaviour of the prompt.
+     * @param options Optional parameters to control the behaviour of the prompt.
      */
     static choice(session: Session, prompt: string|string[]|IMessage, choices: string|Object|string[], options?: IPromptOptions): void;
 
@@ -1359,7 +1359,7 @@ export class Prompts extends Dialog {
      * * __prompt:__ _{string}_ - Initial message to send the user.
      * * __prompt:__ _{string[]}_ - Array of possible messages to send user. One will be chosen at random. 
      * * __prompt:__ _{IMessage}_ - Initial message to send the user. Message can contain attachments. 
-     * @param options Optional flags parameters to control the behaviour of the prompt.
+     * @param options Optional parameters to control the behaviour of the prompt.
      */
     static time(session: Session, prompt: string|string[]|IMessage, options?: IPromptOptions): void;
 

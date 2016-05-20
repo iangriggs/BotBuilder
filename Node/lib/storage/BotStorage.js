@@ -1,4 +1,3 @@
-"use strict";
 var MemoryBotStorage = (function () {
     function MemoryBotStorage() {
         this.userStore = {};

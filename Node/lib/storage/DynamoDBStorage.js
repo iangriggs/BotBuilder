@@ -1,4 +1,3 @@
-"use strict";
 var AWS = require('aws-sdk');
 var DynamoDBStorage = (function () {
     function DynamoDBStorage(type, storage) {

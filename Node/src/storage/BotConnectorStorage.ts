@@ -1,15 +1,15 @@
-//
+// 
 // Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license.
-//
+// 
 // Microsoft Bot Framework: http://botframework.com
-//
+// 
 // Bot Builder SDK Github:
 // https://github.com/Microsoft/BotBuilder
-//
+// 
 // Copyright (c) Microsoft Corporation
 // All rights reserved.
-//
+// 
 // MIT License:
 // Permission is hereby granted, free of charge, to any person obtaining
 // a copy of this software and associated documentation files (the
@@ -18,10 +18,10 @@
 // distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is furnished to do so, subject to
 // the following conditions:
-//
+// 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-//
+// 
 // THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
 // MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -42,12 +42,12 @@ export interface IBotConnectorStorageOptions {
 
 export interface IBotConnectorStorageData extends storage.IBotStorageData {
     userDataHash?: string;
-    conversationDataHash?: string;
+    conversationDataHash?: string;    
 }
 
 export class BotConnectorStorage implements storage.IBotStorage {
     constructor(private options: IBotConnectorStorageOptions) {
-
+        
     }
 
     public get(address: storage.IBotStorageAddress, callback: (err: Error, data: storage.IBotStorageData) => void): void {
@@ -74,7 +74,7 @@ export class BotConnectorStorage implements storage.IBotStorage {
                             (<any>data)[field + 'Hash'] = body;
                             (<any>data)[field] = typeof body === 'string' ? JSON.parse(body) : null;
                         } catch (e) {
-                            err = e instanceof Error ? e : new Error(e.toString());
+                            err = e instanceof Error ? e : new Error(e.toString()); 
                         }
                     }
                     if (callback && (err || --ops == 0)) {
@@ -138,6 +138,6 @@ export class BotConnectorStorage implements storage.IBotStorage {
         var convoPath = address.conversationId ? '/conversations/' + address.conversationId + userPath : null;
         write(userPath, 'userData');
         write(convoPath, 'conversationData');
-
+        
     }
 }

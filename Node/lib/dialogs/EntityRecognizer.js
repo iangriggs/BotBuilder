@@ -1,4 +1,3 @@
-"use strict";
 var utils = require('../utils');
 var chrono = require('chrono-node');
 var EntityRecognizer = (function () {
@@ -36,6 +35,7 @@ var EntityRecognizer = (function () {
         entities.forEach(function (entity) {
             if (entity.resolution) {
                 switch (entity.resolution.resolution_type || entity.type) {
+                    case 'builtin.datetime':
                     case 'builtin.datetime.date':
                     case 'builtin.datetime.time':
                         var parts = (entity.resolution.date || entity.resolution.time).split('T');

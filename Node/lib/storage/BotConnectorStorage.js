@@ -1,4 +1,3 @@
-"use strict";
 var request = require('request');
 var BotConnectorStorage = (function () {
     function BotConnectorStorage(options) {

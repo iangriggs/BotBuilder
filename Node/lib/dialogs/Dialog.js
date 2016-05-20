@@ -1,4 +1,3 @@
-"use strict";
 (function (ResumeReason) {
     ResumeReason[ResumeReason["completed"] = 0] = "completed";
     ResumeReason[ResumeReason["notCompleted"] = 1] = "notCompleted";

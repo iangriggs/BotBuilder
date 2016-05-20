@@ -1,4 +1,3 @@
-"use strict";
 var MemoryStorage = (function () {
     function MemoryStorage() {
         this.store = {};

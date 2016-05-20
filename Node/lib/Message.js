@@ -1,4 +1,3 @@
-"use strict";
 var session = require('./Session');
 var sprintf = require('sprintf-js');
 var Message = (function () {

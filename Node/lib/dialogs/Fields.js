@@ -126,7 +126,7 @@ var Fields = (function () {
         };
     };
     return Fields;
-})();
+}());
 exports.Fields = Fields;
 dc.systemDialogs[consts.DialogId.Field] = new sd.SimpleDialog(function (session, args) {
     var fieldArgs = session.dialogData;
