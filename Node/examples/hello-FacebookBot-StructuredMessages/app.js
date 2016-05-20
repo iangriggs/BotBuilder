@@ -69,18 +69,15 @@ bot.add('/', [function(session) {
             });
 
             session.send('Mulitple cards with action buttons...')
-
-            //session.send(cardMessage);
             builder.Prompts.text(session, cardMessage);
         } else {
             session.send('No problem...taking you back to the start');
         }
-        //    builder.Prompts.choice(session, "Which color?", ["red", "green", "blue"]);
     },
     function(session, results) {
         if (results.response) {
             session.send(`You answered ${results.response}`);
-            builder.Prompts.choice(session, "One more question...which color?", ["red", "green", "yellow"]);
+            builder.Prompts.choice(session, "One more question...which color?", ["red", "green", "yellow","blue"]);
         } else {
             session.send('No problem...taking you back to the start');
         }
@@ -93,12 +90,13 @@ bot.add('/', [function(session) {
             }
 
             if (results.response.entity === 'red') {
-                messageContent.contentUrl = 'https://upload.wikimedia.org/wikipedia/commons/d/df/Dark_Red.PNG'
+                messageContent.contentUrl = 'https://pbs.twimg.com/media/CiVO61PWUAMVDpu.jpg:small'
             } else if (results.response.entity === 'green') {
-                messageContent.contentUrl = 'https://upload.wikimedia.org/wikipedia/commons/2/23/Light_green.PNG'
+                messageContent.contentUrl = 'https://pbs.twimg.com/media/CiGpFCkWMAAwnKa.jpg:small'
             } else if (results.response.entity === 'yellow') {
+                messageContent.contentUrl = 'https://pbs.twimg.com/media/CiRzMe3XIAECGhT.jpg:small'
             } else {                
-                messageContent.contentUrl = 'https://upload.wikimedia.org/wikipedia/commons/7/71/Black.png'            
+                messageContent.contentUrl = 'https://pbs.twimg.com/media/CikrsGrXAAAIkhQ.jpg:small'            
             }
 
             var imageMessage = new builder.Message().addAttachment(messageContent);
