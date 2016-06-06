@@ -3,6 +3,7 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+var charLim = require('../support/charLimiter');
 var Debug = require('debug');
 var debug = Debug('FacebookBot');
 var collection = require('../dialogs/DialogCollection');
@@ -72,12 +73,18 @@ var FacebookBot = (function (_super) {
             dialogId: dialogId,
             dialogArgs: dialogArgs
         });
-        ses.on('send', function (reply) {
+       ses.on('send', function (reply) {
             _this.saveData(msg.from.address, ses.userData, ses.sessionState, function () {
                 if (reply) {
-                    var facebookReply = _this.toFacebookMessage(reply);
-                    facebookReply.to = ses.message.to.address;
-                    _this.botService.send(facebookReply.to, facebookReply.content, onError);
+                  charLim(reply, function(results){
+                    if (results){
+                      for (segment in results) {
+                        var facebookReply = _this.toFacebookMessage(results[segment]);
+                        facebookReply.to = ses.message.to.address;
+                        _this.botService.send(facebookReply.to, facebookReply.content, onError);
+                      }
+                    }
+                  });
                 }
             });
         });
