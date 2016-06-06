@@ -42,8 +42,8 @@ var FacebookBotService = (function (_super) {
         var messaging_events = message.entry[0].messaging;
         for (var i = 0; i < messaging_events.length; i++) {
             var event = message.entry[0].messaging[i];
-            var sender = event.recipient.id;
-            var recipient = event.sender.id;
+            var sender = event.sender.id;
+            var recipient = event.recipient.id;
             if (event.message && event.message.text) {
                 var text = event.message.text;
                 var id = event.message.mid;

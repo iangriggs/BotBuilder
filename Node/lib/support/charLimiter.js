@@ -8,7 +8,7 @@ var chunkString = function(message, length, callback) {
 };
 
 var sendMessage = function(message, callback) {
-  if (message.text.length > 320) {
+  if (message.text && message.text.length > 320) {
     chunkString(message.text, 320, function(results) {
       callback(results);
     });

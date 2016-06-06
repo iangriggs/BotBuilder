@@ -80,7 +80,7 @@ var FacebookBot = (function (_super) {
                     if (results){
                       for (segment in results) {
                         var facebookReply = _this.toFacebookMessage(results[segment]);
-                        facebookReply.to = ses.message.to.address;
+                        facebookReply.to = ses.message.from.address;
                         _this.botService.send(facebookReply.to, facebookReply.content, onError);
                       }
                     }
