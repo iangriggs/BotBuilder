@@ -18,7 +18,19 @@ if (!page_token) {
 }
 var validation_token = process.env.VALIDATION_TOKEN;
 if (!validation_token) {
-  console.error('Provide validation token required as VALIDATION_TOKEN environment variable.');
+  console.error('Provide validation token as VALIDATION_TOKEN environment variable.');
+  return;
+}
+
+var ddTable = process.env.DD_TABLE;
+if (!validation_token) {
+  console.error('Provide DynamoDB table name as DD_TABLE environment variable.');
+  return;
+}
+
+var ddRegion = process.env.DD_REGION;
+if (!validation_token) {
+  console.error('Provide DynamoDB region as DD_REGION environment variable.');
   return;
 }
 
@@ -27,9 +39,8 @@ var options = {
   validation_token,
   storage: {
     provider: 'dynamodb',
-    partition_key:'iansbot1',
-    table: 'BotSessions',
-    region: 'eu-west-1'
+    table: ddTable,
+    region: ddRegion
   }
 };
 
@@ -38,11 +49,16 @@ var bot = new builder.FacebookBot(options);
 bot.add('/', dialog);
 dialog.matches('^echo', [
     function (session) {
-        builder.Prompts.text(session, "What would you like me to say?");
+        if (session.userData.echo) {
+            builder.Prompts.text(session, `Last time you asked me to say ${session.userData.echo.toUpperCase()}. What would you like me to say this time?`);
+        } else {
+            builder.Prompts.text(session, "What would you like me to say?");
+        }
     },
     function (session, results) {
         if (results.response) {
-            session.send("Ok... %s", results.response);
+            session.send(`Ok... ${results.response.toUpperCase()}. Type ECHO to try again.`);
+            session.userData.echo = results.response;
         } else {
             session.send("Ok");
         }

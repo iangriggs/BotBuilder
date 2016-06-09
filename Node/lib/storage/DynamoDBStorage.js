@@ -2,24 +2,24 @@ var Debug = require('debug');
 var debug = Debug('DynamoDBStorage');
 var AWS = require('aws-sdk');
 var DynamoDBStorage = (function () {
-    function DynamoDBStorage(type, storage) {
-        debug("set storage: dynamodb: " + type);
+    function DynamoDBStorage(state, storage) {
+        debug("set storage: dynamodb: " + state);
         AWS.config.update({
             region: storage.region
         });
         this.dd = new AWS.DynamoDB.DocumentClient();
         this.ddTable = storage.table;
-        this.partitionKey = storage.partition_key + "_" + type;
+        this.state = state;
     }
     DynamoDBStorage.prototype.get = function (id, callback) {
         var params = {
             Key: {
-                "partition": this.partitionKey,
-                "id": id
+                "id": id,
+                "state": this.state
             },
             TableName: this.ddTable
         };
-        debug("get: " + this.partitionKey + " " + id, JSON.stringify(params));
+        debug("get: " + this.state + " " + id, JSON.stringify(params));
         this.dd.get(params, function (err, result) {
             if (err) {
                 callback(err);
@@ -35,24 +35,24 @@ var DynamoDBStorage = (function () {
     DynamoDBStorage.prototype.save = function (id, data, callback) {
         var params = {
             Item: {
-                "partition": this.partitionKey,
                 "id": id,
+                "state": this.state,
                 "data": data || {}
             },
             TableName: this.ddTable
         };
-        debug("put " + this.partitionKey + " " + id, JSON.stringify(params));
+        debug("put " + this.state + " " + id, JSON.stringify(params));
         this.dd.put(params, callback);
     };
     DynamoDBStorage.prototype.delete = function (id) {
         var params = {
             Key: {
-                "partition": this.partitionKey,
-                "id": id
+                "id": id,
+                "state": this.state
             },
             TableName: this.ddTable
         };
-        debug("delete " + this.partitionKey + " " + id, JSON.stringify(params));
+        debug("delete " + this.state + " " + id, JSON.stringify(params));
         this.dd.delete(params);
     };
     return DynamoDBStorage;

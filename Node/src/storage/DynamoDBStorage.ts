@@ -17,27 +17,27 @@ export class DynamoDBStorage implements IBotStorage {
 
     private dd: any;
     private ddTable: string;
-    private partitionKey: string;
+    private state: string;
 
-    constructor(type: string, storage: IStorageOptions) {
-        debug(`set storage: dynamodb: ${type}`)
+    constructor(state: string, storage: IStorageOptions) {
+        debug(`set storage: dynamodb: ${state}`)
         AWS.config.update({
             region: storage.region
         });
         this.dd = new AWS.DynamoDB.DocumentClient();
         this.ddTable = storage.table;
-        this.partitionKey = `${storage.partition_key}_${type}`;
+        this.state = state;
     }
 
     public get(id: string, callback: (err?: Error, data?: IBotStorageData) => void): void {
         var params = {
             Key: {
-                "partition": this.partitionKey,
-                "id": id
+                "id": id,
+                "state": this.state
             },
             TableName: this.ddTable
         };
-        debug(`get: ${this.partitionKey} ${id}`, JSON.stringify(params));
+        debug(`get: ${this.state} ${id}`, JSON.stringify(params));
         this.dd.get(params, function(err: Error, result: any) {
             if (err) {
                 callback(err);
@@ -55,25 +55,25 @@ export class DynamoDBStorage implements IBotStorage {
     public save(id: string, data: IBotStorageData, callback?: (err: Error) => void): void {
         var params = {
             Item: {
-                "partition": this.partitionKey,
                 "id": id,
+                "state": this.state,
                 "data": data || {}
             },
             TableName: this.ddTable
         };
-        debug(`put ${this.partitionKey} ${id}`, JSON.stringify(params));
+        debug(`put ${this.state} ${id}`, JSON.stringify(params));
         this.dd.put(params, callback);
     }
 
     public delete(id: string): void {
         var params = {
             Key: {
-                "partition": this.partitionKey,
-                "id": id
+                "id": id,
+                "state": this.state
             },
             TableName: this.ddTable
         };
-        debug(`delete ${this.partitionKey} ${id}`, JSON.stringify(params));
+        debug(`delete ${this.state} ${id}`, JSON.stringify(params));
         this.dd.delete(params);
     }
 }

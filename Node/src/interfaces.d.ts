@@ -183,7 +183,6 @@ interface IStorageOptions {
   provider: string;
   region: string;
   table: string;
-  partition_key: string;
 }
 
     
