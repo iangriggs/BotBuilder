@@ -115,7 +115,7 @@ export class FacebookBot extends collection.DialogCollection {
             this.saveData(msg.from.address, ses.userData, ses.sessionState, () => {
                 if (reply) {
                     var facebookReply = this.toFacebookMessage(reply);
-                    facebookReply.to = ses.message.to.address;
+                    facebookReply.to = ses.message.from.address;
                     this.botService.send(facebookReply.to, facebookReply.content, onError);
                 }
             });

@@ -3,7 +3,6 @@ var __extends = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var charLim = require('../support/charLimiter');
 var collection = require('../dialogs/DialogCollection');
 var session = require('../Session');
 var storage = require('../storage/Storage');
@@ -73,30 +72,25 @@ var TextBot = (function (_super) {
             dialogId: dialogId,
             dialogArgs: dialogArgs
         });
-         ses.on('send', function (reply) {
-          _this.saveData(userId, ses.userData, ses.sessionState, function () {
-           if (reply && reply.text) {
-             charLim(reply, function(results){
-                if (results){
-                  for (segment in results) {
-                    var reply = results[segment];
+        ses.on('send', function (reply) {
+            _this.saveData(userId, ses.userData, ses.sessionState, function () {
+                if (reply && reply.text) {
                     if (callback) {
-                      callback(null, reply);
-                      callback = null;
-                    } else if (message.id || message.conversationId) {
-                      reply.from = message.to;
-                      reply.to = reply.replyTo || reply.to;
-                      reply.conversationId = message.conversationId;
-                      reply.language = message.language;
-                      _this.emit('reply', reply);
-                  } else {
-                    _this.emit('send', reply);
-                  }
+                        callback(null, reply);
+                        callback = null;
+                    }
+                    else if (message.id || message.conversationId) {
+                        reply.from = message.to;
+                        reply.to = reply.replyTo || reply.to;
+                        reply.conversationId = message.conversationId;
+                        reply.language = message.language;
+                        _this.emit('reply', reply);
+                    }
+                    else {
+                        _this.emit('send', reply);
+                    }
                 }
-               }
-              });
-            };
-          });
+            });
         });
         ses.on('error', function (err) {
             if (callback) {
