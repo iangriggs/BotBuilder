@@ -3,7 +3,17 @@ const debug = Debug('DynamoDBStorage');
 import utils = require('../utils');
 import AWS = require('aws-sdk');
 
-export class DynamoDBStorage implements IStorage {
+export interface IBotStorageData {
+    userData?: any;
+    conversationData?: any;
+}
+
+export interface IBotStorage {
+    get(id: string, callback: (err?: Error, data?: IBotStorageData) => void): void;
+    save(id: string, data: IBotStorageData, callback?: (err: Error) => void): void;
+}
+
+export class DynamoDBStorage implements IBotStorage {
 
     private dd: any;
     private ddTable: string;
@@ -19,7 +29,7 @@ export class DynamoDBStorage implements IStorage {
         this.partitionKey = `${storage.partition_key}_${type}`;
     }
 
-    public get(id: string, callback: (err?: Error, data?: any) => void): void {
+    public get(id: string, callback: (err?: Error, data?: IBotStorageData) => void): void {
         var params = {
             Key: {
                 "partition": this.partitionKey,
@@ -27,7 +37,7 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        debug(`get: ${this.partitionKey}`, JSON.stringify(params));
+        debug(`get: ${this.partitionKey} ${id}`, JSON.stringify(params));
         this.dd.get(params, function(err: Error, result: any) {
             if (err) {
                 callback(err);
@@ -38,12 +48,11 @@ export class DynamoDBStorage implements IStorage {
                 callback(null, result.Item.data);
                 return;
             }
-
             callback();
         });
     }
 
-    public save(id: string, data: any, callback?: (err?: Error, data?: string) => void): void {
+    public save(id: string, data: IBotStorageData, callback?: (err: Error) => void): void {
         var params = {
             Item: {
                 "partition": this.partitionKey,
@@ -52,11 +61,11 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        debug(`put ${this.partitionKey}`, JSON.stringify(params));
+        debug(`put ${this.partitionKey} ${id}`, JSON.stringify(params));
         this.dd.put(params, callback);
     }
 
-    public delete(id: string, callback?: (err?: Error, data?: string) => void): void {
+    public delete(id: string): void {
         var params = {
             Key: {
                 "partition": this.partitionKey,
@@ -64,7 +73,7 @@ export class DynamoDBStorage implements IStorage {
             },
             TableName: this.ddTable
         };
-        debug(`delete ${this.partitionKey}`, JSON.stringify(params));
-        this.dd.delete(params, callback);
+        debug(`delete ${this.partitionKey} ${id}`, JSON.stringify(params));
+        this.dd.delete(params);
     }
 }
