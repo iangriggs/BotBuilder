@@ -44,6 +44,9 @@ var TextBot = (function (_super) {
         if (!message.from) {
             message.from = { channelId: 'text', address: 'user' };
         }
+        if (!message.to) {
+            message.to = { channelId: 'text', address: 'bot' };
+        }
         this.dispatchMessage(message.from.address, message, callback, this.options.defaultDialogId, this.options.defaultDialogArgs);
     };
     TextBot.prototype.listenStdin = function () {
@@ -81,7 +84,7 @@ var TextBot = (function (_super) {
                     }
                     else if (message.id || message.conversationId) {
                         reply.from = message.to;
-                        reply.to = reply.replyTo || reply.to;
+                        reply.to = reply.replyTo || reply.to || message.from;
                         reply.conversationId = message.conversationId;
                         reply.language = message.language;
                         _this.emit('reply', reply);

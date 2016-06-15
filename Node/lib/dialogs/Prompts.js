@@ -158,10 +158,10 @@ var Prompts = (function (_super) {
     };
     Prompts.prototype.sendPrompt = function (session, args, retry) {
         if (retry === void 0) { retry = false; }
-        if (retry && typeof args.retryPrompt === 'object') {
+        if (retry && typeof args.retryPrompt === 'object' && !Array.isArray(args.retryPrompt)) {
             session.send(args.retryPrompt);
         }
-        else if (typeof args.prompt === 'object') {
+        else if (typeof args.prompt === 'object' && !Array.isArray(args.prompt)) {
             session.send(args.prompt);
         }
         else {
@@ -207,7 +207,7 @@ var Prompts = (function (_super) {
                         .addAttachment(a);
                     break;
                 case ListStyle.inline:
-                    list = ' ';
+                    list = ' (';
                     args.enumValues.forEach(function (value, index) {
                         list += connector + (index + 1) + '. ' + value;
                         if (index == args.enumValues.length - 2) {
@@ -217,6 +217,7 @@ var Prompts = (function (_super) {
                             connector = ', ';
                         }
                     });
+                    list += ')';
                     msg.setText(session, prompt + '%s', list);
                     break;
                 case ListStyle.list:

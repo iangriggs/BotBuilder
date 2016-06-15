@@ -20,6 +20,7 @@
   "typings": "./lib/botbuilder.d.ts",
   "dependencies": {
     "aws-sdk": "^2.3.7",
+    "async": "^1.5.2",
     "chrono-node": "^1.1.3",
     "node-uuid": "^1.4.7",
     "request": "^2.69.0",

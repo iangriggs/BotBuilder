@@ -1,4 +1,37 @@
-﻿using System;
+﻿// 
+// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license.
+// 
+// Microsoft Bot Framework: http://botframework.com
+// 
+// Bot Builder SDK Github:
+// https://github.com/Microsoft/BotBuilder
+// 
+// Copyright (c) Microsoft Corporation
+// All rights reserved.
+// 
+// MIT License:
+// Permission is hereby granted, free of charge, to any person obtaining
+// a copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to
+// permit persons to whom the Software is furnished to do so, subject to
+// the following conditions:
+// 
+// The above copyright notice and this permission notice shall be
+// included in all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED ""AS IS"", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Bot.Connector;
 using Moq;
@@ -16,43 +49,9 @@ using System.Text.RegularExpressions;
 
 namespace Microsoft.Bot.Builder.Tests
 {
-    public abstract class ConversationTestBase : IConnectorClientFactory
+    public class MockConnectorFactory : IConnectorClientFactory
     {
         protected readonly Dictionary<string, BotData> DataStore = new Dictionary<string, BotData>();
-
-        public static IContainer Build(ConversationTestBase testContext, params object[] singletons)
-        {
-            var builder = new ContainerBuilder();
-            builder.RegisterModule(new DialogModule());
-
-            builder
-                .RegisterType<BotToUserQueue>()
-                .Keyed<IBotToUser>(FiberModule.Key_DoNotSerialize)
-                .AsSelf()
-                .As<IBotToUser>()
-                .InstancePerLifetimeScope();
-
-            builder
-                .Register((c, p) => testContext)
-                    .As<IConnectorClientFactory>()
-                    .InstancePerLifetimeScope();
-
-            builder
-                .Register((c, p) => new SendLastInline_BotToUser(p.TypedAs<Message>(), c.Resolve<IConnectorClient>()))
-                .Keyed<IBotToUser>(FiberModule.Key_DoNotSerialize)
-                .AsSelf()
-                .As<IBotToUser>()
-                .InstancePerLifetimeScope();
-
-            foreach (var singleton in singletons)
-            {
-                builder
-                    .Register(c => singleton)
-                    .Keyed<object>(FiberModule.Key_DoNotSerialize);
-            }
-
-            return builder.Build();
-        }
 
         public IConnectorClient Make()
         {
@@ -98,42 +97,65 @@ namespace Microsoft.Bot.Builder.Tests
 
         }
 
-        public static Mock<IBots> MockIBots(ConversationTestBase testContext)
+        public static Mock<IBots> MockIBots(MockConnectorFactory mockConnectorFactory)
         {
             var botsClient = new Moq.Mock<IBots>(MockBehavior.Loose);
 
             botsClient.Setup(d => d.SetConversationDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BotData>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
                 .Returns<string, string, BotData, Dictionary<string, List<string>>, CancellationToken>(async (botId, conversationId, data, headers, token) => {
-                    return testContext.UpsertData(botId, null, conversationId, data);
+                    return mockConnectorFactory.UpsertData(botId, null, conversationId, data);
                 });
 
             botsClient.Setup(d => d.GetConversationDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
                 .Returns<string, string, Dictionary<string, List<string>>, CancellationToken>(async (botId, conversationId, headers, token) => {
-                    return testContext.GetData(botId, null, conversationId);
+                    return mockConnectorFactory.GetData(botId, null, conversationId);
                 });
 
 
             botsClient.Setup(d => d.SetUserDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BotData>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
               .Returns<string, string, BotData, Dictionary<string, List<string>>, CancellationToken>(async (botId, userId, data, headers, token) => {
-                  return testContext.UpsertData(botId, userId, null, data);
+                  return mockConnectorFactory.UpsertData(botId, userId, null, data);
               });
 
             botsClient.Setup(d => d.GetUserDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
                 .Returns<string, string, Dictionary<string, List<string>>, CancellationToken>(async (botId, userId, headers, token) => {
-                    return testContext.GetData(botId, userId, null);
+                    return mockConnectorFactory.GetData(botId, userId, null);
                 });
 
             botsClient.Setup(d => d.SetPerUserInConversationDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<BotData>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
              .Returns<string, string, string, BotData, Dictionary<string, List<string>>, CancellationToken>(async (botId, conversationId, userId, data, headers, token) => {
-                 return testContext.UpsertData(botId, userId, conversationId, data);
+                 return mockConnectorFactory.UpsertData(botId, userId, conversationId, data);
              });
 
             botsClient.Setup(d => d.GetPerUserConversationDataWithHttpMessagesAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Dictionary<string, List<string>>>(), It.IsAny<CancellationToken>()))
              .Returns<string, string, string, Dictionary<string, List<string>>, CancellationToken>(async (botId, conversationId, userId, headers, token) => {
-                 return testContext.GetData(botId, userId, conversationId);
+                 return mockConnectorFactory.GetData(botId, userId, conversationId);
              });
 
             return botsClient;
+        }
+    }
+
+    public abstract class ConversationTestBase
+    {
+        public static IContainer Build(MockConnectorFactory mockConnectorFactory, params object[] singletons)
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterModule(new DialogModule_MakeRoot());
+
+            builder
+                .Register((c, p) => mockConnectorFactory)
+                    .As<IConnectorClientFactory>()
+                    .InstancePerLifetimeScope(); 
+
+            foreach (var singleton in singletons)
+            {
+                builder
+                    .Register(c => singleton)
+                    .Keyed(FiberModule.Key_DoNotSerialize, singleton.GetType());
+            }
+
+            return builder.Build();
         }
     }
 
@@ -148,9 +170,8 @@ namespace Microsoft.Bot.Builder.Tests
                 new RegexCase<IDialog<string>>(new Regex("^resume"), (context, data) => { context.UserData.SetValue("resume", true); return Chain.Return("resumed!"); }),
                 new DefaultCase<string, IDialog<string>>((context, data) => { return Chain.Return(data); })).Unwrap().PostToUser();
 
-
             using (new FiberTestBase.ResolveMoqAssembly(chain))
-            using (var container = Build(this, chain))
+            using (var container = Build(new MockConnectorFactory(), chain))
             {
                 var msg = new Message
                 {
@@ -160,18 +181,26 @@ namespace Microsoft.Bot.Builder.Tests
                     To = new ChannelAccount { Id = "testBot" }
                 };
 
-                using (var scope = container.BeginLifetimeScope())
+                using (var scope = DialogModule.BeginLifetimeScope(container, msg))
                 {
-                    var reply = await Conversation.SendAsync(scope, msg, () => chain);
+                    Func<IDialog<object>> MakeRoot = () => chain;
+                    scope.Resolve<Func<IDialog<object>>>(TypedParameter.From(MakeRoot));
+
+                    var reply = await Conversation.SendAsync(scope, msg);
 
                     // storing data in mocked connector client
                     var client = scope.Resolve<IConnectorClient>();
                     await PersistMessageData(client, msg.To.Id, msg.From.Id, msg.ConversationId, reply);
                 }
 
-                using (var scope = container.BeginLifetimeScope())
+                var resumptionCookie = new ResumptionCookie(msg);
+                var continuationMessage = resumptionCookie.GetMessage(); 
+                using (var scope = DialogModule.BeginLifetimeScope(container, continuationMessage))
                 {
-                    var reply = await Conversation.ResumeAsync(scope, msg.To.Id, msg.From.Id, msg.ConversationId, new Message { Text = "resume" });
+                    Func<IDialog<object>> MakeRoot = () => { throw new InvalidOperationException(); };
+                    scope.Resolve<Func<IDialog<object>>>(TypedParameter.From(MakeRoot));
+
+                    var reply = await Conversation.ResumeAsync(scope, continuationMessage, new Message { Text = "resume" });
                     Assert.AreEqual("resumed!", reply.Text);
 
                     var client = scope.Resolve<IConnectorClient>();

@@ -31,59 +31,10 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-
-namespace Microsoft.Bot.Builder.Dialogs
-{
-    #region Documentation
-    /// <summary>   Extensions for resources. </summary>
-    #endregion
-    public static partial class ResourceExtensions
-    {
-        /// <summary>   The separator character between elements in a string list. </summary>
-        public const string SEPARATOR = ";";
-
-        /// <summary>   When the <see cref="SEPARATOR"/> is found in a string list, the escaped replacement.</summary>
-        public const string ESCAPED_SEPARATOR = "__semi";
-
-        #region Documentation
-        /// <summary>   Makes a string list. </summary>
-        /// <param name="elements">     The elements to combine into a list. </param>
-        /// <param name="separator">    The separator character between elements in a string list. </param>
-        /// <param name="escape">       The escape string for separator characters. </param>
-        /// <returns>   A string. </returns>
-        #endregion
-        public static string MakeList(IEnumerable<string> elements, string separator = SEPARATOR, string escape = ESCAPED_SEPARATOR)
-        {
-            return string.Join(separator, from elt in elements select elt.Replace(separator, escape));
-        }
-
-        #region Documentation
-        /// <summary>   Makes a list from parameters. </summary>
-        /// <param name="elements"> The elements to combine into a list. </param>
-        /// <returns>   A string. </returns>
-        #endregion
-        public static string MakeList(params string[] elements)
-        {
-            return MakeList(elements.AsEnumerable());
-        }
-
-        #region Documentation
-        /// <summary>   A string extension method that splits a list. </summary>
-        /// <param name="str">          The str to act on. </param>
-        /// <param name="separator">    The separator character between elements in a string list. </param>
-        /// <param name="escape">       The escape string for separator characters. </param>
-        /// <returns>   A string[]. </returns>
-        #endregion
-        public static string[] SplitList(this string str, string separator = SEPARATOR, string escape = ESCAPED_SEPARATOR)
-        {
-            var elements = str.Split(separator[0]);
-            return (from elt in elements select elt.Replace(escape, separator)).ToArray();
-        }
-    }
-}
 
 namespace Microsoft.Bot.Builder.Dialogs.Internals
 {
@@ -92,6 +43,35 @@ namespace Microsoft.Bot.Builder.Dialogs.Internals
         public static T GetValue<T>(this SerializationInfo info, string name)
         {
             return (T)info.GetValue(name, typeof(T));
+        }
+
+        public static T MaxBy<T, R>(this IEnumerable<T> items, Func<T, R> selectRank, IComparer<R> comparer = null)
+        {
+            comparer = comparer ?? Comparer<R>.Default;
+
+            var bestItem = default(T);
+            var bestRank = default(R);
+            using (var item = items.GetEnumerator())
+            {
+                if (item.MoveNext())
+                {
+                    bestItem = item.Current;
+                    bestRank = selectRank(item.Current);
+                }
+
+                while (item.MoveNext())
+                {
+                    var rank = selectRank(item.Current);
+                    var compare = comparer.Compare(rank, bestRank);
+                    if (compare > 0)
+                    {
+                        bestItem = item.Current;
+                        bestRank = rank;
+                    }
+                }
+            }
+
+            return bestItem;
         }
     }
 }

@@ -234,10 +234,10 @@ export class Prompts extends dialog.Dialog {
     }
     
     private sendPrompt(session: ses.Session, args: IPromptArgs, retry = false): void {
-        if (retry && typeof args.retryPrompt === 'object') {
+        if (retry && typeof args.retryPrompt === 'object' && !Array.isArray(args.retryPrompt)) {
             // Send native IMessage
             session.send(args.retryPrompt);            
-        } else if (typeof args.prompt === 'object') {
+        } else if (typeof args.prompt === 'object' && !Array.isArray(args.prompt)) {
             // Send native IMessage
             session.send(args.prompt);            
         } else {
@@ -284,7 +284,7 @@ export class Prompts extends dialog.Dialog {
                        .addAttachment(a);
                     break;
                 case ListStyle.inline:
-                    list = ' ';
+                    list = ' (';
                     args.enumValues.forEach((value, index) => {
                         list += connector + (index + 1) + '. ' + value;
                         if (index == args.enumValues.length - 2) {
@@ -293,6 +293,7 @@ export class Prompts extends dialog.Dialog {
                             connector = ', ';
                         } 
                     });
+                    list += ')';
                     msg.setText(session, prompt + '%s', list);
                     break;
                 case ListStyle.list:

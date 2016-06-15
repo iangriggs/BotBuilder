@@ -39,6 +39,7 @@ using System.Web;
 
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.Internals.Fibers;
+using Microsoft.Bot.Builder.Luis.Models;
 
 namespace Microsoft.Bot.Builder.Luis
 {
@@ -86,13 +87,12 @@ namespace Microsoft.Bot.Builder.Luis
 
         Uri ILuisService.BuildUri(string text)
         {
-            var queryString = HttpUtility.ParseQueryString(string.Empty);
-            queryString["id"] = this.model.ModelID;
-            queryString["subscription-key"] = this.model.SubscriptionKey;
-            queryString["q"] = text;
+            var id = HttpUtility.UrlEncode(this.model.ModelID);
+            var sk = HttpUtility.UrlEncode(this.model.SubscriptionKey);
+            var q = HttpUtility.UrlEncode(text);
 
             var builder = new UriBuilder(UriBase);
-            builder.Query = queryString.ToString();
+            builder.Query = $"id={id}&subscription-key={sk}&q={q}";
             return builder.Uri;
         }
 

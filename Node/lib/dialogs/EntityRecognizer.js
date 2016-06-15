@@ -4,7 +4,7 @@ var EntityRecognizer = (function () {
     function EntityRecognizer() {
     }
     EntityRecognizer.findEntity = function (entities, type) {
-        for (var i = 0; i < entities.length; i++) {
+        for (var i = 0; entities && i < entities.length; i++) {
             if (entities[i].type == type) {
                 return entities[i];
             }
@@ -13,7 +13,7 @@ var EntityRecognizer = (function () {
     };
     EntityRecognizer.findAllEntities = function (entities, type) {
         var found = [];
-        for (var i = 0; i < entities.length; i++) {
+        for (var i = 0; entities && i < entities.length; i++) {
             if (entities[i].type == type) {
                 found.push(entities[i]);
             }
